@@ -1,3 +1,47 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-openapi/css/preset.css';
+
+/* Bold Video Brand Colors */
+:root {
+  /* Primary mint green: #5CCEB2 → hsl(162, 52%, 59%) */
+  --fd-primary: 162 52% 59%;
+  --fd-primary-foreground: 0 0% 100%;
+
+  /* Slightly darker for hover states */
+  --fd-accent: 162 52% 95%;
+  --fd-accent-foreground: 162 52% 35%;
+
+  /* Ring color for focus states */
+  --fd-ring: 162 52% 59%;
+}
+
+.dark {
+  /* Adjusted for dark mode - slightly brighter mint */
+  --fd-primary: 162 52% 55%;
+  --fd-primary-foreground: 0 0% 0%;
+
+  --fd-accent: 162 30% 15%;
+  --fd-accent-foreground: 162 52% 70%;
+}
+
+/* Custom link styling with mint accent */
+.prose a:not(.not-prose a) {
+  color: hsl(162 52% 45%);
+  text-decoration-color: hsl(162 52% 45% / 0.3);
+}
+
+.prose a:not(.not-prose a):hover {
+  color: hsl(162 52% 35%);
+  text-decoration-color: hsl(162 52% 35%);
+}
+
+.dark .prose a:not(.not-prose a) {
+  color: hsl(162 52% 60%);
+  text-decoration-color: hsl(162 52% 60% / 0.3);
+}
+
+.dark .prose a:not(.not-prose a):hover {
+  color: hsl(162 52% 70%);
+}

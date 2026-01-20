@@ -1,0 +1,129 @@
+---
+title: Analytics
+description: Track video events and page views with the Bold SDK
+---
+
+The Bold SDK provides analytics methods to track video playback events and page views.
+
+## Methods
+
+### `trackEvent(event)`
+
+Track video playback events like play, pause, and completion.
+
+```typescript
+bold.trackEvent({
+  type: 'play',
+  videoId: 'video-id',
+  currentTime: 0
+});
+
+bold.trackEvent({
+  type: 'pause',
+  videoId: 'video-id',
+  currentTime: 45.5
+});
+
+bold.trackEvent({
+  type: 'complete',
+  videoId: 'video-id',
+  currentTime: 300
+});
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `event` | `TrackEvent` | Yes | Event data object |
+
+**Event Object:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | `string` | Yes | Event type (e.g., `play`, `pause`, `complete`) |
+| `videoId` | `string` | Yes | The video ID |
+| `currentTime` | `number` | No | Playback position in seconds |
+
+---
+
+### `trackPageView(data)`
+
+Track page navigation and views.
+
+```typescript
+bold.trackPageView({
+  path: '/videos/intro-to-ml',
+  title: 'Introduction to Machine Learning',
+  referrer: document.referrer
+});
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `data` | `PageViewData` | Yes | Page view data object |
+
+**PageView Object:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `path` | `string` | Yes | Current page path |
+| `title` | `string` | No | Page title |
+| `referrer` | `string` | No | Referring URL |
+
+## Usage Examples
+
+### Video Player Integration
+
+```typescript
+const video = document.querySelector('video');
+const videoId = 'video-id';
+
+video.addEventListener('play', () => {
+  bold.trackEvent({
+    type: 'play',
+    videoId,
+    currentTime: video.currentTime
+  });
+});
+
+video.addEventListener('pause', () => {
+  bold.trackEvent({
+    type: 'pause',
+    videoId,
+    currentTime: video.currentTime
+  });
+});
+
+video.addEventListener('ended', () => {
+  bold.trackEvent({
+    type: 'complete',
+    videoId,
+    currentTime: video.currentTime
+  });
+});
+```
+
+### SPA Page Tracking
+
+```typescript
+// Track initial page load
+bold.trackPageView({
+  path: window.location.pathname,
+  title: document.title
+});
+
+// Track route changes (e.g., with React Router)
+useEffect(() => {
+  bold.trackPageView({
+    path: location.pathname,
+    title: document.title
+  });
+}, [location]);
+```
+
+## Related
+
+- [Types](/docs/sdk/types) — Complete type reference

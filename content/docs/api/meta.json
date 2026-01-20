@@ -1,0 +1,6 @@
+{
+  "root": true,
+  "title": "API",
+  "icon": "Code",
+  "pages": ["index", "reference"]
+}

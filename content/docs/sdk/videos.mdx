@@ -1,0 +1,125 @@
+---
+title: Videos
+description: List, get, and search videos using the Bold SDK
+---
+
+The `videos` namespace provides methods for retrieving video content from your Bold library.
+
+## Methods
+
+### `videos.list()`
+
+Retrieve all videos in your library.
+
+```typescript
+const videos = await bold.videos.list();
+
+for (const video of videos) {
+  console.log(video.title, video.duration);
+}
+```
+
+**Returns:** `Promise<Video[]>`
+
+---
+
+### `videos.get(id)`
+
+Get a specific video by ID.
+
+```typescript
+const video = await bold.videos.get('video-id');
+
+console.log(video.title);
+console.log(video.description);
+console.log(video.chapters);
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | `string` | Yes | The video ID |
+
+**Returns:** `Promise<Video>`
+
+---
+
+### `videos.search(query)`
+
+Search videos by query string.
+
+```typescript
+const results = await bold.videos.search('machine learning');
+
+for (const video of results) {
+  console.log(video.title);
+}
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `query` | `string` | Yes | Search query |
+
+**Returns:** `Promise<Video[]>`
+
+## Video Type
+
+```typescript
+interface Video {
+  id: string;
+  playbackId: string;
+  title: string;
+  description?: string;
+  duration: number;
+  status: string;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  captions?: VideoSubtitles[];
+  chapters?: Chapter[];
+  attachments?: VideoAttachment[];
+  transcript?: VideoTranscript;
+  downloadUrls?: VideoDownloadUrls;
+  metadata?: VideoMetadata;
+}
+```
+
+### Related Types
+
+```typescript
+interface VideoAttachment {
+  id: string;
+  title: string;
+  fileUrl: string;
+  size: number;
+  type: string;
+}
+
+interface VideoDownloadUrls {
+  mp4?: string;
+  audio?: string;
+  legacyMp4?: string;
+}
+
+interface VideoSubtitles {
+  language: string;
+  engine: string;
+  url: string;
+}
+
+interface VideoTranscript {
+  text: string;
+  json: TranscriptSegment[];
+}
+
+interface VideoMetadata {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+```
+
+See [Types](/docs/sdk/types) for complete type definitions.

@@ -1,0 +1,190 @@
+---
+title: AI Methods
+description: AI-powered chat, search, and recommendations in the Bold SDK
+---
+
+The `ai` namespace provides AI capabilities for conversational chat, semantic search, and video recommendations.
+
+## Methods
+
+### `ai.chat(options)`
+
+Conversational AI that can be scoped to specific videos. Supports both streaming (default) and non-streaming responses.
+
+```typescript
+// Streaming (default)
+for await (const event of bold.ai.chat({ prompt: 'What topics are covered?' })) {
+  if (event.type === 'text_delta') {
+    process.stdout.write(event.text);
+  }
+}
+
+// Non-streaming
+const response = await bold.ai.chat({
+  prompt: 'What topics are covered?',
+  stream: false
+});
+
+console.log(response.text);
+```
+
+**Scoped to a specific video:**
+
+```typescript
+for await (const event of bold.ai.chat({
+  prompt: 'Explain the main concept',
+  videoId: 'video-id',
+  currentTime: 120 // Current playback position in seconds
+})) {
+  // Handle events
+}
+```
+
+**Continue a conversation:**
+
+```typescript
+for await (const event of bold.ai.chat({
+  prompt: 'Tell me more about that',
+  conversationId: 'conv-id'
+})) {
+  // Handle events
+}
+```
+
+**Parameters:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `prompt` | `string` | Yes | — | Your question or message |
+| `stream` | `boolean` | No | `true` | Enable streaming response |
+| `videoId` | `string` | No | — | Scope chat to a specific video |
+| `currentTime` | `number` | No | — | Playback position in seconds |
+| `conversationId` | `string` | No | — | Continue an existing conversation |
+| `collectionId` | `string` | No | — | Filter by collection |
+| `tags` | `string[]` | No | — | Filter by tags |
+
+**Returns:** `AsyncIterable<AIEvent>` (streaming) or `Promise<AIResponse>` (non-streaming)
+
+---
+
+### `ai.search(options)`
+
+Semantic search across your video library with AI-synthesized results.
+
+```typescript
+// Streaming
+for await (const event of bold.ai.search({
+  prompt: 'How to deploy to production?',
+  limit: 5
+})) {
+  if (event.type === 'text_delta') {
+    process.stdout.write(event.text);
+  }
+  if (event.type === 'sources') {
+    console.log('Sources:', event.sources);
+  }
+}
+
+// Non-streaming
+const response = await bold.ai.search({
+  prompt: 'How to deploy to production?',
+  stream: false
+});
+```
+
+**Parameters:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `prompt` | `string` | Yes | — | Search query |
+| `stream` | `boolean` | No | `true` | Enable streaming response |
+| `limit` | `number` | No | — | Maximum number of results |
+| `collectionId` | `string` | No | — | Filter by collection |
+| `videoId` | `string` | No | — | Scope search to a specific video |
+| `tags` | `string[]` | No | — | Filter by tags |
+| `context` | `ConversationMessage[]` | No | — | Prior conversation context |
+
+**Returns:** `AsyncIterable<AIEvent>` (streaming) or `Promise<AIResponse>` (non-streaming)
+
+---
+
+### `ai.recommendations(options)`
+
+Get topic-based video recommendations with optional AI guidance narratives.
+
+```typescript
+for await (const event of bold.ai.recommendations({
+  topics: ['machine learning', 'deployment'],
+  limit: 5,
+  includeGuidance: true
+})) {
+  if (event.type === 'text_delta') {
+    // AI guidance narrative
+    process.stdout.write(event.text);
+  }
+  if (event.type === 'recommendations') {
+    for (const rec of event.recommendations) {
+      console.log(`Topic: ${rec.topic}`);
+      for (const video of rec.videos) {
+        console.log(`  - ${video.title} (score: ${video.score})`);
+      }
+    }
+  }
+}
+```
+
+**Parameters:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `topics` | `string[]` | Yes | — | Topics to find videos for |
+| `stream` | `boolean` | No | `true` | Enable streaming response |
+| `limit` | `number` | No | — | Max videos per topic (max 20) |
+| `collectionId` | `string` | No | — | Filter by collection |
+| `tags` | `string[]` | No | — | Filter by tags |
+| `includeGuidance` | `boolean` | No | — | Include AI guidance narrative |
+| `context` | `ConversationMessage[]` | No | — | Prior conversation context |
+
+**Returns:** `AsyncIterable<AIEvent>` (streaming) or `Promise<RecommendationsResponse>` (non-streaming)
+
+---
+
+### `ai.getConversation(conversationId)`
+
+Retrieve a full conversation history.
+
+```typescript
+const conversation = await bold.ai.getConversation('conv-id');
+
+console.log('Status:', conversation.metadata.status);
+
+for (const message of conversation.messages) {
+  console.log(`${message.role}: ${message.content}`);
+  if (message.sources) {
+    console.log('Sources:', message.sources);
+  }
+}
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `conversationId` | `string` | Yes | The conversation ID |
+
+**Returns:** `Promise<Conversation>`
+
+## Deprecated Methods
+
+The following methods are deprecated and will be removed in a future version:
+
+| Deprecated | Use Instead |
+|------------|-------------|
+| `ai.ask()` | `ai.chat()` |
+| `ai.coach()` | `ai.chat()` |
+| `ai.recommend()` | `ai.recommendations()` |
+
+## Related
+
+- [Streaming](/docs/sdk/streaming) — Handle real-time SSE events
+- [Types](/docs/sdk/types) — Complete type reference

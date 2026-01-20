@@ -1,0 +1,53 @@
+---
+title: AI Ask Endpoint
+description: Query video content using AI
+updated_at: "2025-12-24"
+---
+
+The AI Ask endpoint allows you to query your video content using natural language.
+
+## Endpoint
+
+```
+POST /v1/ai/ask
+```
+
+## Request Body
+
+```json
+{
+  "video_id": "vid_123456",
+  "question": "What are the main topics discussed in this video?"
+}
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `video_id` | string | Yes | The ID of the video to query |
+| `question` | string | Yes | Natural language question |
+
+## Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "answer": "The video discusses three main topics...",
+    "confidence": 0.95,
+    "timestamps": [
+      { "start": 0, "end": 30, "topic": "Introduction" }
+    ]
+  }
+}
+```
+
+## Example
+
+```bash
+curl -X POST https://api.boldvideo.io/v1/ai/ask \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"video_id": "vid_123", "question": "Summarize this video"}'
+```

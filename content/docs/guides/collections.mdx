@@ -1,0 +1,65 @@
+---
+title: Managing Collections
+description: Organize your videos into collections
+updated_at: "2025-12-24"
+---
+
+Collections help you organize related videos together. Use them for course modules, event recordings, product demos, or any grouping that makes sense for your content.
+
+## Creating a Collection
+
+1. Go to **Collections** in the sidebar
+2. Click **New Collection**
+3. Enter a name and optional description
+4. Click **Create**
+
+## Adding Videos to a Collection
+
+### From the Collection Page
+
+1. Open the collection
+2. Click **Add Videos**
+3. Select videos from your library
+4. Click **Add Selected**
+
+### From a Video's Settings
+
+1. Open the video
+2. Go to the **Settings** tab
+3. Under **Collections**, click **Add to Collection**
+4. Select the collection(s)
+
+## Reordering Videos
+
+Within a collection, you can drag and drop videos to reorder them. The order is preserved when displaying the collection.
+
+## Collection Settings
+
+Each collection has settings for:
+
+- **Name** - Display name for the collection
+- **Description** - Optional description text
+- **Visibility** - Public, private, or unlisted
+
+## Using Collections via API
+
+You can manage collections programmatically:
+
+```bash
+# List all collections
+curl -X GET "https://app.boldvideo.io/api/v1/collections" \
+  -H "X-API-Key: YOUR_API_KEY"
+
+# Get videos in a collection
+curl -X GET "https://app.boldvideo.io/api/v1/collections/{id}/videos" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+See the [API Reference](/api) for full collection endpoint documentation.
+
+## Next Steps
+
+<Cards>
+  <Card title="Embedding Videos" href="/guides/embedding" />
+  <Card title="API Reference" href="/api" />
+</Cards>

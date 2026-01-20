@@ -1,0 +1,13 @@
+{
+  "root": true,
+  "title": "Guides",
+  "icon": "Book",
+  "pages": [
+    "index",
+    "dashboard",
+    "uploading-videos",
+    "collections",
+    "embedding",
+    "ai-coaching"
+  ]
+}

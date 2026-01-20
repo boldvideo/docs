@@ -4,13 +4,18 @@ import {
   frontmatterSchema,
   metaSchema,
 } from 'fumadocs-mdx/config';
+import { z } from 'zod';
 
-// You can customise Zod schemas for frontmatter and `meta.json` here
-// see https://fumadocs.dev/docs/mdx/collections
+// Extended frontmatter schema with updated_at field
+const extendedFrontmatter = frontmatterSchema.extend({
+  updated_at: z.string().optional(),
+});
+
+// See https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
-    schema: frontmatterSchema,
+    schema: extendedFrontmatter,
     postprocess: {
       includeProcessedMarkdown: true,
     },

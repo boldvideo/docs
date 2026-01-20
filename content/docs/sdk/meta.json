@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "title": "SDK",
+  "icon": "Package",
+  "pages": [
+    "index",
+    "videos",
+    "playlists",
+    "ai-methods",
+    "streaming",
+    "analytics",
+    "types"
+  ]
+}

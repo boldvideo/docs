@@ -1,0 +1,46 @@
+---
+title: Webhooks
+description: Receive real-time notifications for Bold events
+updated_at: "2025-12-24"
+---
+
+Webhooks allow you to receive real-time HTTP notifications when events occur in your Bold account.
+
+## Setting Up Webhooks
+
+1. Go to your Bold dashboard
+2. Navigate to Settings > Webhooks
+3. Add your endpoint URL
+4. Select the events you want to receive
+
+## Events
+
+| Event | Description |
+|-------|-------------|
+| `video.uploaded` | A new video has been uploaded |
+| `video.processed` | Video processing is complete |
+| `video.deleted` | A video has been deleted |
+| `ai.analysis.complete` | AI analysis has finished |
+
+## Payload Format
+
+```json
+{
+  "event": "video.processed",
+  "timestamp": "2025-12-24T12:00:00Z",
+  "data": {
+    "video_id": "vid_123456",
+    "status": "ready"
+  }
+}
+```
+
+## Verifying Webhooks
+
+All webhook payloads include a signature header for verification:
+
+```
+X-Bold-Signature: sha256=abc123...
+```
+
+Verify using HMAC SHA-256 with your webhook secret.

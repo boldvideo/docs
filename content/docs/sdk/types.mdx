@@ -1,0 +1,331 @@
+---
+title: Types
+description: TypeScript type reference for the Bold SDK
+---
+
+Complete TypeScript type definitions for the Bold SDK.
+
+## Client Types
+
+### ClientOptions
+
+```typescript
+interface ClientOptions {
+  baseURL?: string;
+  debug?: boolean;
+  headers?: Record<string, string>;
+}
+```
+
+## Video Types
+
+### Video
+
+```typescript
+interface Video {
+  id: string;
+  playbackId: string;
+  title: string;
+  description?: string;
+  duration: number;
+  status: string;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  captions?: VideoSubtitles[];
+  chapters?: Chapter[];
+  attachments?: VideoAttachment[];
+  transcript?: VideoTranscript;
+  downloadUrls?: VideoDownloadUrls;
+  metadata?: VideoMetadata;
+}
+```
+
+### VideoAttachment
+
+```typescript
+interface VideoAttachment {
+  id: string;
+  title: string;
+  fileUrl: string;
+  size: number;
+  type: string;
+}
+```
+
+### VideoDownloadUrls
+
+```typescript
+interface VideoDownloadUrls {
+  mp4?: string;
+  audio?: string;
+  legacyMp4?: string;
+}
+```
+
+### VideoSubtitles
+
+```typescript
+interface VideoSubtitles {
+  language: string;
+  engine: string;
+  url: string;
+}
+```
+
+### VideoTranscript
+
+```typescript
+interface VideoTranscript {
+  text: string;
+  json: TranscriptSegment[];
+}
+```
+
+### VideoMetadata
+
+```typescript
+interface VideoMetadata {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+```
+
+## Playlist Types
+
+### Playlist
+
+```typescript
+interface Playlist {
+  id: string;
+  title: string;
+  description?: string;
+  videos: Video[];
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+## AI Types
+
+### ChatOptions
+
+```typescript
+interface ChatOptions {
+  prompt: string;
+  stream?: boolean;
+  videoId?: string;
+  currentTime?: number;
+  conversationId?: string;
+  collectionId?: string;
+  tags?: string[];
+}
+```
+
+### SearchOptions
+
+```typescript
+interface SearchOptions {
+  prompt: string;
+  stream?: boolean;
+  limit?: number;
+  collectionId?: string;
+  videoId?: string;
+  tags?: string[];
+  context?: ConversationMessage[];
+}
+```
+
+### RecommendationsOptions
+
+```typescript
+interface RecommendationsOptions {
+  topics: string[];
+  stream?: boolean;
+  limit?: number;
+  collectionId?: string;
+  tags?: string[];
+  includeGuidance?: boolean;
+  context?: ConversationMessage[];
+}
+```
+
+### AIResponse
+
+Non-streaming response from AI methods.
+
+```typescript
+interface AIResponse {
+  text: string;
+  sources?: Segment[];
+  usage?: AIUsage;
+}
+```
+
+### AIUsage
+
+Token usage statistics.
+
+```typescript
+interface AIUsage {
+  inputTokens: number;
+  outputTokens: number;
+}
+```
+
+### AIEvent
+
+Union type for all streaming events.
+
+```typescript
+type AIEvent =
+  | { type: 'message_start'; conversationId: string }
+  | { type: 'text_delta'; text: string }
+  | { type: 'sources'; sources: Segment[] }
+  | { type: 'recommendations'; recommendations: Recommendation[] }
+  | { type: 'message_complete'; usage: AIUsage }
+  | { type: 'error'; error: string };
+```
+
+### Segment
+
+Video segment used as a source/citation.
+
+```typescript
+interface Segment {
+  videoId: string;
+  videoTitle: string;
+  start: number;
+  end: number;
+  text: string;
+  speaker?: string;
+}
+```
+
+### Recommendation
+
+Topic-based video recommendation.
+
+```typescript
+interface Recommendation {
+  topic: string;
+  videos: RecommendationVideo[];
+}
+```
+
+### RecommendationVideo
+
+```typescript
+interface RecommendationVideo {
+  id: string;
+  title: string;
+  description?: string;
+  duration: number;
+  score: number;
+}
+```
+
+## Conversation Types
+
+### Conversation
+
+```typescript
+interface Conversation {
+  id: string;
+  messages: ConversationMessage[];
+  metadata: ConversationMetadata;
+}
+```
+
+### ConversationMessage
+
+```typescript
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  sources?: Segment[];
+}
+```
+
+### ConversationMetadata
+
+```typescript
+interface ConversationMetadata {
+  query: string;
+  status: string;
+}
+```
+
+## Settings Types
+
+### Settings
+
+```typescript
+interface Settings {
+  account: Account;
+  portal: Portal;
+  metadata: VideoMetadata;
+  theme: ThemeConfig;
+  featuredPlaylists: Playlist[];
+}
+```
+
+### Account
+
+```typescript
+interface Account {
+  ai: AccountAI;
+  persona: Persona;
+}
+```
+
+### AccountAI
+
+```typescript
+interface AccountAI {
+  name?: string;
+  greeting?: string;
+  avatar?: string;
+}
+```
+
+### Persona
+
+```typescript
+interface Persona {
+  enabled: boolean;
+  conversationStarters?: string[];
+}
+```
+
+### Portal
+
+```typescript
+interface Portal {
+  display: PortalDisplay;
+  layout: PortalLayout;
+  navigation: PortalNavigation;
+  theme: PortalTheme;
+  hero: PortalHero;
+  redirects?: CustomRedirect[];
+}
+```
+
+### ThemeConfig
+
+```typescript
+interface ThemeConfig {
+  radius: number;
+  colors: ThemeColors;
+}
+```
+
+### ThemeColors
+
+```typescript
+interface ThemeColors {
+  light: ColorPalette;
+  dark: ColorPalette;
+}
+```

@@ -1,0 +1,37 @@
+---
+title: API Overview
+description: Bold Video API Reference documentation
+updated_at: "2025-12-24"
+---
+
+The Bold API provides programmatic access to all Bold Video features.
+
+## Base URL
+
+```
+https://app.boldvideo.io/api/v1
+```
+
+## Authentication
+
+All API requests require authentication using your API key in the `X-API-Key` header:
+
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" \
+  https://app.boldvideo.io/api/v1/videos
+```
+
+## Response Format
+
+All responses are returned in JSON format:
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+## Endpoints
+
+Browse the API reference in the sidebar to explore all available endpoints.

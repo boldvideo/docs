@@ -1,0 +1,63 @@
+---
+title: SDK Overview
+description: Bold.js - TypeScript client for the Bold Video API
+---
+
+The Bold SDK (`@boldvideo/bold-js`) provides a TypeScript client for integrating Bold Video into your applications.
+
+## Installation
+
+```package-install
+@boldvideo/bold-js
+```
+
+## Quick Start
+
+```typescript
+import { createClient } from '@boldvideo/bold-js';
+
+const bold = createClient('your-api-key');
+
+// Fetch videos
+const videos = await bold.videos.list();
+
+// AI chat with streaming
+for await (const event of bold.ai.chat({ prompt: 'What videos do you have?' })) {
+  if (event.type === 'text_delta') {
+    process.stdout.write(event.text);
+  }
+}
+
+// AI chat without streaming
+const response = await bold.ai.chat({
+  prompt: 'Summarize the main topics',
+  stream: false
+});
+```
+
+## Client Options
+
+```typescript
+const bold = createClient('your-api-key', {
+  baseURL: 'https://custom-endpoint.example.com', // Optional
+  debug: true,                                     // Optional
+  headers: { 'X-Custom': 'value' }                // Optional
+});
+```
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `baseURL` | `string` | Custom API endpoint |
+| `debug` | `boolean` | Enable debug logging |
+| `headers` | `Record<string, string>` | Additional HTTP headers |
+
+## API Sections
+
+<Cards>
+  <Card title="Videos" href="/docs/sdk/videos" description="List, get, and search videos" />
+  <Card title="Playlists" href="/docs/sdk/playlists" description="Manage video playlists" />
+  <Card title="AI Methods" href="/docs/sdk/ai-methods" description="Chat, search, and recommendations" />
+  <Card title="Streaming" href="/docs/sdk/streaming" description="Handle real-time SSE events" />
+  <Card title="Analytics" href="/docs/sdk/analytics" description="Track events and page views" />
+  <Card title="Types" href="/docs/sdk/types" description="TypeScript type reference" />
+</Cards>

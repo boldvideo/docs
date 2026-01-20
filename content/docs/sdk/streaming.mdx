@@ -1,0 +1,219 @@
+---
+title: Streaming
+description: Handle real-time SSE events from Bold AI methods
+---
+
+Bold AI methods support Server-Sent Events (SSE) for real-time streaming responses. This enables progressive rendering of AI responses as they're generated.
+
+## How Streaming Works
+
+By default, AI methods (`chat`, `search`, `recommendations`) return an `AsyncIterable<AIEvent>` that yields events as they arrive.
+
+```typescript
+for await (const event of bold.ai.chat({ prompt: 'Explain this concept' })) {
+  switch (event.type) {
+    case 'message_start':
+      // Conversation started
+      console.log('Conversation ID:', event.conversationId);
+      break;
+
+    case 'text_delta':
+      // Incremental text chunk
+      process.stdout.write(event.text);
+      break;
+
+    case 'sources':
+      // Video sources with timestamps
+      for (const source of event.sources) {
+        console.log(`Source: ${source.videoTitle} at ${source.start}s`);
+      }
+      break;
+
+    case 'recommendations':
+      // Video recommendations (from recommendations method)
+      for (const rec of event.recommendations) {
+        console.log(`Topic: ${rec.topic}`);
+      }
+      break;
+
+    case 'message_complete':
+      // Final response with usage statistics
+      console.log('Usage:', event.usage);
+      break;
+
+    case 'error':
+      // Error occurred
+      console.error('Error:', event.error);
+      break;
+  }
+}
+```
+
+## Disabling Streaming
+
+Set `stream: false` to receive a single response object instead of streaming events.
+
+```typescript
+const response = await bold.ai.chat({
+  prompt: 'Explain this concept',
+  stream: false
+});
+
+console.log(response.text);
+console.log(response.sources);
+console.log(response.usage);
+```
+
+## Event Types
+
+### `message_start`
+
+Emitted when a conversation begins. Contains the conversation ID for continuing the conversation later.
+
+```typescript
+interface MessageStartEvent {
+  type: 'message_start';
+  conversationId: string;
+}
+```
+
+### `text_delta`
+
+Emitted for each chunk of generated text. Concatenate these to build the full response.
+
+```typescript
+interface TextDeltaEvent {
+  type: 'text_delta';
+  text: string;
+}
+```
+
+### `sources`
+
+Emitted when video sources are identified. Contains timestamps and metadata for citations.
+
+```typescript
+interface SourcesEvent {
+  type: 'sources';
+  sources: Segment[];
+}
+
+interface Segment {
+  videoId: string;
+  videoTitle: string;
+  start: number;      // Start time in seconds
+  end: number;        // End time in seconds
+  text: string;       // Transcript excerpt
+  speaker?: string;   // Speaker name if available
+}
+```
+
+### `recommendations`
+
+Emitted by the `recommendations` method with video suggestions.
+
+```typescript
+interface RecommendationsEvent {
+  type: 'recommendations';
+  recommendations: Recommendation[];
+}
+
+interface Recommendation {
+  topic: string;
+  videos: RecommendationVideo[];
+}
+
+interface RecommendationVideo {
+  id: string;
+  title: string;
+  description?: string;
+  duration: number;
+  score: number;  // Relevance score 0-1
+}
+```
+
+### `message_complete`
+
+Emitted when the response is complete. Contains usage statistics.
+
+```typescript
+interface MessageCompleteEvent {
+  type: 'message_complete';
+  usage: AIUsage;
+}
+
+interface AIUsage {
+  inputTokens: number;
+  outputTokens: number;
+}
+```
+
+### `error`
+
+Emitted if an error occurs during streaming.
+
+```typescript
+interface ErrorEvent {
+  type: 'error';
+  error: string;
+}
+```
+
+## AIEvent Union Type
+
+The `AIEvent` type is a discriminated union of all event types:
+
+```typescript
+type AIEvent =
+  | MessageStartEvent
+  | TextDeltaEvent
+  | SourcesEvent
+  | RecommendationsEvent
+  | MessageCompleteEvent
+  | ErrorEvent;
+```
+
+## Building a Chat UI
+
+Example of building a streaming chat interface:
+
+```typescript
+async function streamChat(prompt: string, onChunk: (text: string) => void) {
+  let fullText = '';
+  let sources: Segment[] = [];
+  let conversationId: string | undefined;
+
+  for await (const event of bold.ai.chat({ prompt })) {
+    switch (event.type) {
+      case 'message_start':
+        conversationId = event.conversationId;
+        break;
+
+      case 'text_delta':
+        fullText += event.text;
+        onChunk(event.text);
+        break;
+
+      case 'sources':
+        sources = event.sources;
+        break;
+
+      case 'error':
+        throw new Error(event.error);
+    }
+  }
+
+  return { fullText, sources, conversationId };
+}
+
+// Usage
+const { fullText, sources, conversationId } = await streamChat(
+  'What is machine learning?',
+  (chunk) => process.stdout.write(chunk)
+);
+```
+
+## Related
+
+- [AI Methods](/docs/sdk/ai-methods) — Chat, search, and recommendations
+- [Types](/docs/sdk/types) — Complete type reference

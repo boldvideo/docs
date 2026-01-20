@@ -1,0 +1,101 @@
+---
+title: Embedding Videos
+description: Add Bold Video players to your website
+updated_at: "2025-12-24"
+---
+
+Bold Video provides several ways to embed videos on your website or application.
+
+## Quick Embed (iframe)
+
+The easiest way to embed a video:
+
+1. Open the video in your Bold dashboard
+2. Click **Share**
+3. Copy the embed code
+4. Paste into your HTML
+
+```html
+<iframe
+  src="https://app.boldvideo.io/embed/{video_id}"
+  width="640"
+  height="360"
+  frameborder="0"
+  allowfullscreen
+></iframe>
+```
+
+## Responsive Embed
+
+For responsive designs that adapt to container width:
+
+```html
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe
+    src="https://app.boldvideo.io/embed/{video_id}"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    frameborder="0"
+    allowfullscreen
+  ></iframe>
+</div>
+```
+
+The `56.25%` padding creates a 16:9 aspect ratio. Adjust for other ratios:
+- 16:9 = 56.25%
+- 4:3 = 75%
+- 1:1 = 100%
+
+## Embed Options
+
+Customize the player with URL parameters:
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `autoplay` | `0`, `1` | Start playing automatically (requires `muted=1`) |
+| `muted` | `0`, `1` | Start with audio muted |
+| `loop` | `0`, `1` | Loop the video continuously |
+| `controls` | `0`, `1` | Show or hide player controls |
+| `start` | seconds | Start playback at specific time |
+
+Example with options:
+
+```html
+<iframe
+  src="https://app.boldvideo.io/embed/{video_id}?autoplay=1&muted=1&start=30"
+  width="640"
+  height="360"
+  frameborder="0"
+  allowfullscreen
+></iframe>
+```
+
+## Using the JavaScript SDK
+
+For more control over the player, use the Bold SDK:
+
+```javascript
+import { BoldPlayer } from '@boldvideo/player';
+
+const player = new BoldPlayer({
+  container: '#video-container',
+  videoId: 'your-video-id',
+});
+
+// Control playback
+player.play();
+player.pause();
+player.seek(30); // Jump to 30 seconds
+
+// Listen to events
+player.on('play', () => console.log('Video started'));
+player.on('ended', () => console.log('Video finished'));
+```
+
+See the [SDK Documentation](/sdk) for full player API reference.
+
+## Next Steps
+
+<Cards>
+  <Card title="SDK Documentation" href="/sdk" />
+  <Card title="API Reference" href="/api" />
+</Cards>

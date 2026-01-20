@@ -1,0 +1,62 @@
+---
+title: Playlists
+description: Manage video playlists using the Bold SDK
+---
+
+The `playlists` namespace provides methods for retrieving playlist content.
+
+## Methods
+
+### `playlists.list()`
+
+Retrieve all playlists in your library.
+
+```typescript
+const playlists = await bold.playlists.list();
+
+for (const playlist of playlists) {
+  console.log(playlist.title, playlist.videos.length);
+}
+```
+
+**Returns:** `Promise<Playlist[]>`
+
+---
+
+### `playlists.get(id)`
+
+Get a specific playlist by ID.
+
+```typescript
+const playlist = await bold.playlists.get('playlist-id');
+
+console.log(playlist.title);
+console.log(playlist.description);
+
+for (const video of playlist.videos) {
+  console.log(video.title);
+}
+```
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | `string` | Yes | The playlist ID |
+
+**Returns:** `Promise<Playlist>`
+
+## Playlist Type
+
+```typescript
+interface Playlist {
+  id: string;
+  title: string;
+  description?: string;
+  videos: Video[];
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+See [Types](/docs/sdk/types) for complete type definitions.
