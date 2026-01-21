@@ -19,8 +19,8 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
-        text: 'boldvideo.io',
-        url: 'https://boldvideo.io',
+        text: 'boldvideo.com',
+        url: 'https://boldvideo.com',
         external: true,
       },
     ],
