@@ -1,0 +1,48 @@
+---
+title: Next.js Starter
+description: A complete video portal you can deploy in minutes
+updated_at: "2026-07-10"
+---
+
+The fastest way to build with Bold isn't a blank file. It's the [Next.js starter](https://github.com/boldvideo/nextjs-starter): a production-grade video portal built on the [SDK](/sdk), ready to deploy and easy to make yours.
+
+## What's included
+
+- **Mux Player**: production-ready playback
+- **Search** with keyboard shortcuts (<kbd>⌘K</kbd>)
+- **AI chat** wired to your library
+- **Dark mode** with system preference detection
+- **Optional authentication**: OAuth with Google/WorkOS, domain restrictions, session management
+- **Next.js App Router** with React Server Components, styled with Tailwind CSS
+- Playback **analytics** reported back to your Bold dashboard
+
+## Create your app
+
+```bash
+npx create-bold-app
+```
+
+The CLI asks for your project name and your API key (from [Settings → Developer](https://app.boldvideo.io/settings/developer)) and scaffolds everything.
+
+Prefer manual setup?
+
+```bash
+git clone https://github.com/boldvideo/nextjs-starter my-portal
+cd my-portal
+cp .env.example .env.local   # add BOLD_API_KEY
+npm install && npm run dev
+```
+
+## Make it yours
+
+The starter reads your channel's [settings](/api/reference/settings) (logo, colors, menus, featured playlists), so most branding happens in the Bold admin panel, not in code. For everything else, it's your codebase: change layouts, add routes, swap components.
+
+## Deploy
+
+It's a standard Next.js app. Deploy to Vercel (or anywhere Node runs) and set `BOLD_API_KEY` in your environment. Then point your channel at it: **Settings → Channel Settings → Portal Type → Custom Frontend**, and enter your URL as the Frontend Base URL.
+
+## Beyond the starter
+
+- [bold.watch](https://github.com/boldvideo/bold.watch), a minimal player-first template
+- [demos](https://github.com/boldvideo/demos), smaller integration examples
+- Or start from scratch with the [SDK](/sdk) / [API](/api)

@@ -1,0 +1,112 @@
+---
+title: Session Management
+description: "Device limits and password-sharing prevention: headless, on top of your auth"
+updated_at: "2026-07-10"
+---
+
+Bold's session management is a **headless password-sharing prevention layer**. Your app keeps owning login, membership, and access decisions; Bold tracks device sessions per viewer, enforces device limits, and flags suspicious sign-ins. Call Bold only after your app has decided the viewer may access protected content.
+
+There are two halves, with different credentials (see [the three auth layers](/api/authentication#the-three-auth-layers)):
+
+| Half | Runs where | Credential |
+|------|-----------|------------|
+| **Runtime sessions** | Browser / native app | Your auth provider's JWT (safe for client code) |
+| **Server-side management** | Your backend | Your Bold API key (never in client code) |
+
+## Runtime sessions (client-side)
+
+Create an auth client with your tenant slug and the member's upstream JWT (from Outseta, Auth0, Clerk, …):
+
+```typescript
+import { createAuthClient } from '@boldvideo/bold-js';
+
+const auth = createAuthClient({
+  tenantSlug: 'your-channel',
+  upstreamJwt: memberJwt
+});
+```
+
+Register the device when the member starts watching:
+
+```typescript
+const result = await auth.sessions.create({
+  deviceId: browserDeviceId,
+  platform: 'web',
+  userAgent: navigator.userAgent
+});
+
+let sessionId: string | undefined;
+
+if ('challengeRequired' in result) {
+  // Device limit hit or suspicious sign-in: Bold sent an email code.
+  // Show a challenge UI, then:
+  const verified = await auth.challenges.verify(result.challengeId, codeFromUser);
+  sessionId = verified.sessionId ?? undefined;
+} else if (result.sessionId) {
+  sessionId = result.sessionId;
+}
+```
+
+Verify the session before playing protected content:
+
+```typescript
+const verification = await auth.sessions.verify(sessionId);
+if (!verification.valid) {
+  // session_not_found | session_revoked | session_expired
+}
+```
+
+Members can manage their own devices (where policy allows):
+
+```typescript
+const { data: sessions } = await auth.sessions.list();
+await auth.sessions.revoke(oldSessionId);
+await auth.sessions.revokeOthers(currentSessionId);
+```
+
+If your provider refreshes JWTs, pass the fresh one per call: `auth.sessions.verify(id, { upstreamJwt: freshJwt })`.
+
+## Server-side management (backend)
+
+With your normal API key, your backend can inspect and control any viewer's sessions by **your** user ID:
+
+```typescript
+import { createClient } from '@boldvideo/bold-js';
+const bold = createClient(process.env.BOLD_API_KEY!);
+
+// Where does this member stand?
+const { data: state } =
+  await bold.sessionManagement.getViewerSessionManagementStateByExternalId(userId);
+
+// Raise a VIP's device limit, or clear the override
+await bold.sessionManagement.setViewerDeviceLimitOverrideByExternalId(userId, 5);
+await bold.sessionManagement.clearViewerDeviceLimitOverrideByExternalId(userId);
+
+// Exempt a staff account entirely
+await bold.sessionManagement.setViewerSessionManagementExemptionByExternalId(userId, true);
+
+// Inspect sessions
+const { data: sessions } =
+  await bold.sessionManagement.listViewerSessionsByExternalId(userId);
+
+for (const session of sessions) {
+  if (session.travelVerdict === 'impossible_travel') {
+    // Bold flagged this sign-in as physically implausible
+  }
+}
+
+// Membership canceled → kick all devices
+await bold.sessionManagement.revokeAllViewerSessionsByExternalId(userId, {
+  reason: 'membership_changed'
+});
+```
+
+`travelVerdict` is a label only (`'impossible_travel' | null`). Bold never exposes coordinates, IPs, or distances.
+
+<Callout title="Plan availability">
+  Session management / password-sharing controls are geared toward paid communities. Check your plan or [talk to us](mailto:support@boldvideo.com) about enabling them.
+</Callout>
+
+## Reference
+
+REST equivalents: [Auth Sessions](/api/reference/auth-sessions), [Auth Challenges](/api/reference/auth-challenges), [Session Management](/api/reference/session-management), and the [Admin endpoints](/api/reference/admin-viewers).

@@ -1,0 +1,39 @@
+---
+title: Errors
+description: Error format and status codes
+updated_at: "2026-07-10"
+---
+
+Errors come back with an appropriate HTTP status code and a JSON body:
+
+```json
+{
+  "error": "Unauthorized",
+  "status": 401,
+  "timestamp": "2026-07-10 08:39:57.287380Z"
+}
+```
+
+Some endpoints include additional context (for example a `message` or field-level details on validation errors). The shape above is the guaranteed baseline.
+
+## Status codes
+
+| Code | Meaning | Typical cause |
+|------|---------|---------------|
+| `200` | OK | |
+| `201` | Created | Resource created (e.g. viewer, post) |
+| `400` | Bad Request | Malformed JSON or invalid parameters |
+| `401` | Unauthorized | Missing or invalid API key |
+| `403` | Forbidden | Key is valid but not allowed to do this |
+| `404` | Not Found | Wrong ID, or the resource isn't visible to the API (e.g. a private video) |
+| `422` | Unprocessable Entity | Validation failed: check the response body |
+| `429` | Too Many Requests | Slow down; retry with backoff |
+| `5xx` | Server error | Rare; safe to retry with backoff |
+
+## Handling errors well
+
+- **Retry `429` and `5xx`** with exponential backoff; treat `4xx` (except `429`) as bugs to fix, not transient failures.
+- **Don't parse error strings**: branch on the status code.
+- A `404` on a video you know exists usually means it's **private** or the ID belongs to another channel.
+
+The [SDK](/sdk) throws typed errors carrying the status code, so you can handle these cases without touching raw responses.

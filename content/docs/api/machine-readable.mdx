@@ -1,0 +1,38 @@
+---
+title: LLM & Machine-Readable Docs
+description: llms.txt, OpenAPI, and everything an AI agent needs to build against Bold
+updated_at: "2026-07-10"
+---
+
+Bold's docs and API are built LLM-first. If you're pointing an AI coding assistant (Claude Code, Cursor, …) at Bold, give it these:
+
+## For this documentation site
+
+| Resource | URL |
+|----------|-----|
+| **llms.txt** | [`/llms.txt`](/llms.txt): index of all doc pages |
+| **llms-full.txt** | [`/llms-full.txt`](/llms-full.txt): every doc page, one file |
+
+## For the API
+
+| Resource | URL |
+|----------|-----|
+| **API llms.txt** | [`app.boldvideo.io/llms.txt`](https://app.boldvideo.io/llms.txt): compact endpoint catalog with auth notes |
+| **OpenAPI (JSON)** | [`app.boldvideo.io/api/openapi`](https://app.boldvideo.io/api/openapi) |
+| **OpenAPI (YAML)** | [`app.boldvideo.io/openapi.yaml`](https://app.boldvideo.io/openapi.yaml) |
+| **Swagger UI** | [`app.boldvideo.io/api/docs`](https://app.boldvideo.io/api/docs) |
+
+The OpenAPI spec is the canonical machine-readable contract. This documentation's [endpoint reference](/api/reference/videos) is generated from it.
+
+## MCP
+
+For agents that speak the Model Context Protocol, Bold is building an MCP server that exposes your video library as tools and resources. See [MCP](/mcp) for the current status.
+
+## A prompt that works
+
+```
+Read https://app.boldvideo.io/llms.txt and https://docs.boldvideo.com/llms.txt.
+Build against the Bold Video API (base: https://app.boldvideo.io/api/v1,
+auth: "Authorization: Bearer $BOLD_API_KEY"). Prefer the @boldvideo/bold-js
+SDK when working in TypeScript.
+```

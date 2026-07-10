@@ -1,30 +1,55 @@
 ---
 title: Uploading Videos
-description: Learn how to upload and manage videos on Bold
-updated_at: "2025-12-24"
+description: Get your content into Bold from your computer, cloud storage, or meeting recordings
+updated_at: "2026-07-10"
 ---
 
-This guide covers how to upload videos to the Bold platform.
+Everything in Bold starts with an upload. There are several ways to get videos in, and they all end the same way: a fully transcribed, chaptered, searchable video.
 
-## Supported Formats
+## Upload from your computer
 
-Bold supports the following video formats:
+1. Go to **Videos** and click **Upload Video**
+2. Choose **Upload from Computer**
+3. Select one or more video files
 
-- MP4
-- MOV
-- WebM
-- AVI
+![Upload options in the Videos section](/images/admin/admin-upload-menu.png)
 
-## Upload Methods
+Bold accepts all common video formats (MP4, MOV, WebM, and more). Uploads run in the background, so you can keep working while they finish.
 
-### Web Upload
+## Import from cloud storage
 
-You can upload videos directly through the Bold dashboard.
+The **Upload Video** menu also offers:
 
-### API Upload
+- **Import from Google Drive**: browse and pick videos from a connected Google account
+- **Import from OneDrive**: same for Microsoft OneDrive / SharePoint
 
-For programmatic uploads, use the Bold API. See the [API Reference](/api) for details.
+Connect these accounts once under [Settings → Channel Settings](/guides/settings), then import as often as you like. Google Drive can also monitor a folder and import new files automatically, handy for teams that already have a recording workflow.
 
-### SDK Upload
+## Import meeting recordings automatically
 
-Use the Bold SDK for seamless integration. See the [SDK Documentation](/sdk) for more information.
+Bold connects to **Zoom** and **Microsoft Teams** and imports your cloud recordings as they appear, perfect for coaching calls, office hours, and cohort sessions. See [Integrations](/guides/integrations) for setup.
+
+## What happens after upload
+
+Every uploaded video is processed automatically:
+
+1. **Transcription** with speaker detection, using your default video language (and your [transcription dictionary](/guides/transcripts-chapters#transcription-dictionary) for domain-specific terms)
+2. **Chapters** are detected and titled
+3. **Title, teaser, and description** are drafted based on the video's [type](/guides/video-intelligence#video-types)
+4. **Captions** are generated
+5. An **intelligence report** is compiled: topics, key points, participants, and details
+6. The content is indexed for **search and AI chat**
+
+New videos start **Unlisted**, so nothing goes live before you've had a look.
+
+## Replacing a video
+
+Need to swap the file but keep the metadata, URL, and analytics? Open the video, then **Options → Replace Video**. Bold re-runs processing on the new file.
+
+## Uploading via API
+
+You can also create videos programmatically from a URL. See the [Videos API reference](/api/reference/videos).
+
+<Callout>
+  Migrating a large library from Kajabi, Vimeo, YouTube, Circle, or another platform? Bold offers a white-glove migration service: videos, members, and structure. [Get in touch](https://boldvideo.com/migrate).
+</Callout>

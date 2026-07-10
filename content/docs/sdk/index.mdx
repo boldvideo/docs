@@ -1,9 +1,10 @@
 ---
 title: SDK Overview
-description: Bold.js - TypeScript client for the Bold Video API
+description: "@boldvideo/bold-js: the typed JavaScript client for the Bold API"
+updated_at: "2026-07-10"
 ---
 
-The Bold SDK (`@boldvideo/bold-js`) provides a TypeScript client for integrating Bold Video into your applications.
+`@boldvideo/bold-js` is Bold's official TypeScript/JavaScript SDK. It wraps the [REST API](/api) with typed methods, handles SSE streaming for AI features, and works in Node.js and the browser. Keep your API key server-side (see [Authentication](/api/authentication)).
 
 ## Installation
 
@@ -11,37 +12,32 @@ The Bold SDK (`@boldvideo/bold-js`) provides a TypeScript client for integrating
 @boldvideo/bold-js
 ```
 
-## Quick Start
+## Quick start
 
 ```typescript
 import { createClient } from '@boldvideo/bold-js';
 
-const bold = createClient('your-api-key');
+const bold = createClient(process.env.BOLD_API_KEY!);
 
 // Fetch videos
-const videos = await bold.videos.list();
+const { data: videos } = await bold.videos.list();
 
-// AI chat with streaming
-for await (const event of bold.ai.chat({ prompt: 'What videos do you have?' })) {
-  if (event.type === 'text_delta') {
-    process.stdout.write(event.text);
-  }
+// Stream an AI answer
+const stream = await bold.ai.chat({ prompt: 'What videos cover pricing?' });
+for await (const event of stream) {
+  if (event.type === 'text_delta') process.stdout.write(event.delta);
 }
-
-// AI chat without streaming
-const response = await bold.ai.chat({
-  prompt: 'Summarize the main topics',
-  stream: false
-});
 ```
 
-## Client Options
+Get your API key under [Settings → Developer](https://app.boldvideo.io/settings/developer). The key dialog can generate this exact snippet for you.
+
+## Client options
 
 ```typescript
 const bold = createClient('your-api-key', {
-  baseURL: 'https://custom-endpoint.example.com', // Optional
-  debug: true,                                     // Optional
-  headers: { 'X-Custom': 'value' }                // Optional
+  baseURL: 'https://custom-endpoint.example.com', // optional
+  debug: true,                                    // optional
+  headers: { 'X-Custom': 'value' }                // optional
 });
 ```
 
@@ -51,13 +47,25 @@ const bold = createClient('your-api-key', {
 | `debug` | `boolean` | Enable debug logging |
 | `headers` | `Record<string, string>` | Additional HTTP headers |
 
-## API Sections
+## What's in the box
 
 <Cards>
-  <Card title="Videos" href="/docs/sdk/videos" description="List, get, and search videos" />
-  <Card title="Playlists" href="/docs/sdk/playlists" description="Manage video playlists" />
-  <Card title="AI Methods" href="/docs/sdk/ai-methods" description="Chat, search, and recommendations" />
-  <Card title="Streaming" href="/docs/sdk/streaming" description="Handle real-time SSE events" />
-  <Card title="Analytics" href="/docs/sdk/analytics" description="Track events and page views" />
-  <Card title="Types" href="/docs/sdk/types" description="TypeScript type reference" />
+  <Card title="Videos" href="/sdk/videos" description="List, fetch, and search videos" />
+  <Card title="Playlists" href="/sdk/playlists" description="Curated playlists with videos" />
+  <Card title="Viewers & Progress" href="/sdk/viewers" description="Members, lookup, and watch progress" />
+  <Card title="AI Methods" href="/sdk/ai-methods" description="Chat, search, recommendations" />
+  <Card title="Streaming" href="/sdk/streaming" description="Handle SSE events" />
+  <Card title="Community" href="/sdk/community" description="Posts, comments, reactions" />
+  <Card title="Session Management" href="/sdk/session-management" description="Device limits & password-sharing prevention" />
+  <Card title="Analytics" href="/sdk/analytics" description="Report playback from custom players" />
 </Cards>
+
+## Response conventions
+
+- All responses are **camelCase** (`video.playbackId`, not `playback_id`)
+- Resource methods return a `{ data }` envelope: `const { data: videos } = await bold.videos.list()`
+- AI methods return an async-iterable stream by default; pass `stream: false` for plain JSON
+
+## Rather start from a working app?
+
+The [Next.js starter](/sdk/nextjs-starter) is a complete video portal built on this SDK (player, search, AI chat, dark mode), deployable in minutes.

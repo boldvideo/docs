@@ -1,13 +1,26 @@
 {
   "root": true,
   "title": "Guides",
+  "description": "Using the Bold admin panel",
   "icon": "Book",
   "pages": [
     "index",
-    "dashboard",
+    "quickstart",
+    "---Videos---",
     "uploading-videos",
-    "collections",
+    "managing-videos",
+    "transcripts-chapters",
+    "video-intelligence",
+    "---Organize & Share---",
+    "collections-playlists",
     "embedding",
-    "ai-coaching"
+    "portal",
+    "---AI---",
+    "ai-features",
+    "---Account---",
+    "dashboard",
+    "team-viewers",
+    "integrations",
+    "settings"
   ]
 }

@@ -1,0 +1,71 @@
+---
+title: Community
+description: Posts, comments, and reactions for your member community
+updated_at: "2026-07-10"
+---
+
+The `community` namespace powers discussion features: posts, nested comments, and reactions. All write operations take a `viewerId` (the [viewer](/sdk/viewers) performing the action) so Bold knows who's posting.
+
+## Posts
+
+```typescript
+// List posts, optionally by category
+const { data: posts } = await bold.community.posts.list({
+  category: 'announcements',
+  limit: 20,
+  offset: 0,
+  viewerId: 'viewer-uuid'   // include this viewer's reaction state
+});
+
+// One post with its comments
+const { data: post } = await bold.community.posts.get('post-id', 'viewer-uuid');
+
+// Create (Markdown supported)
+const { data: newPost } = await bold.community.posts.create('viewer-uuid', {
+  content: 'Hello community! **Markdown** works.',
+  category: 'general'
+});
+
+// Update / delete: owner or admin only
+await bold.community.posts.update('viewer-uuid', 'post-id', { content: 'Updated' });
+await bold.community.posts.delete('viewer-uuid', 'post-id');
+
+// React (toggle)
+const reaction = await bold.community.posts.react('viewer-uuid', 'post-id');
+console.log(reaction.reacted, reaction.reactionsCount);
+```
+
+## Comments
+
+```typescript
+// Comment on a post
+const { data: comment } = await bold.community.comments.create(
+  'viewer-uuid', 'post-id',
+  { content: 'Great post!' }
+);
+
+// Nested reply
+await bold.community.comments.create(
+  'viewer-uuid', 'post-id',
+  { content: 'I agree!', parentId: comment.id }
+);
+
+// Delete / react
+await bold.community.comments.delete('viewer-uuid', 'comment-id');
+await bold.community.comments.react('viewer-uuid', 'comment-id');
+```
+
+## Reaction state
+
+Pass a `viewerId` when reading and each post/comment includes whether *that viewer* has reacted:
+
+```typescript
+const { data: post } = await bold.community.posts.get('post-id', 'viewer-uuid');
+for (const thread of post.comments.items ?? []) {
+  console.log(thread.reactions.count, thread.reactions.viewerHasReacted);
+}
+```
+
+## Reference
+
+REST equivalents live under [Community endpoints](/api/reference/community).

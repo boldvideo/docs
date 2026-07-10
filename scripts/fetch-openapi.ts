@@ -1,19 +1,43 @@
-import { writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 
 const OPENAPI_URL =
-  process.env.OPENAPI_URL || 'https://app.boldvideo.io/api/openapi';
+  process.env.OPENAPI_URL || "https://app.boldvideo.io/api/openapi";
 
 function sanitizeSpec(spec: Record<string, unknown>): Record<string, unknown> {
-  const paths = spec.paths as Record<string, Record<string, unknown>> | undefined;
+  const paths = spec.paths as
+    | Record<string, Record<string, unknown>>
+    | undefined;
 
   if (paths) {
     for (const path of Object.keys(paths)) {
-      const methods = ['get', 'post', 'put', 'delete', 'patch', 'head', 'options'];
+      const methods = [
+        "get",
+        "post",
+        "put",
+        "delete",
+        "patch",
+        "head",
+        "options",
+      ];
       for (const method of methods) {
         // Remove placeholder operations like "get": "ok"
-        if (paths[path][method] === 'ok' || typeof paths[path][method] === 'string') {
+        if (
+          paths[path][method] === "ok" ||
+          typeof paths[path][method] === "string"
+        ) {
           delete paths[path][method];
+        }
+        // Backend operationIds can carry " (2)"-style dedup suffixes, which
+        // leak into generated filenames. Normalize them to "_2".
+        const operation = paths[path][method] as
+          | { operationId?: string }
+          | undefined;
+        if (operation?.operationId) {
+          operation.operationId = operation.operationId.replace(
+            /\s*\((\d+)\)$/,
+            "_$1",
+          );
         }
       }
       // Remove empty path objects
@@ -23,14 +47,25 @@ function sanitizeSpec(spec: Record<string, unknown>): Record<string, unknown> {
     }
   }
 
-  // Add default tags if missing
-  if (!spec.tags || (Array.isArray(spec.tags) && spec.tags.length === 0)) {
-    spec.tags = [
-      { name: 'Videos', description: 'Video management endpoints' },
-      { name: 'Collections', description: 'Collection management endpoints' },
-      { name: 'AI', description: 'AI-powered features' },
-    ];
+  // The top-level tags array drives per-tag doc generation, and the backend
+  // only declares a subset. Rebuild it from the tags operations actually use,
+  // preserving any descriptions the spec does declare.
+  const declared = new Map(
+    (Array.isArray(spec.tags)
+      ? (spec.tags as Array<{ name: string }>)
+      : []
+    ).map((tag) => [tag.name, tag]),
+  );
+  const used = new Set<string>();
+  if (paths) {
+    for (const path of Object.values(paths)) {
+      for (const operation of Object.values(path)) {
+        const tags = (operation as { tags?: string[] })?.tags;
+        for (const tag of tags ?? []) used.add(tag);
+      }
+    }
   }
+  spec.tags = [...used].map((name) => declared.get(name) ?? { name });
 
   return spec;
 }
@@ -49,13 +84,13 @@ async function main() {
   let spec = await response.json();
   spec = sanitizeSpec(spec);
 
-  if (!existsSync('./openapi')) {
-    await mkdir('./openapi', { recursive: true });
+  if (!existsSync("./openapi")) {
+    await mkdir("./openapi", { recursive: true });
   }
 
-  await writeFile('./openapi/spec.json', JSON.stringify(spec, null, 2));
+  await writeFile("./openapi/spec.json", JSON.stringify(spec, null, 2));
 
-  console.log('OpenAPI spec saved to ./openapi/spec.json');
+  console.log("OpenAPI spec saved to ./openapi/spec.json");
 }
 
 main().catch(console.error);

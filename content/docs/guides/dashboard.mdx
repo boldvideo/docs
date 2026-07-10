@@ -1,70 +1,32 @@
 ---
-title: Dashboard Overview
-description: Navigate the Bold Video admin panel
-updated_at: "2025-12-24"
+title: Dashboard & Analytics
+description: See what's playing, who's watching, and how your library performs
+updated_at: "2026-07-10"
 ---
 
-The Bold Video dashboard is your central hub for managing all your video content.
+The **Dashboard** is the first thing you see after logging in: a live view of your library's activity.
 
-## Main Navigation
+![The analytics dashboard](/images/admin/admin-dashboard.png)
 
-The left sidebar contains the main sections:
+## What you'll find
 
-- **Dashboard** - Overview of your account activity and recent uploads
-- **Videos** - All your uploaded videos
-- **Collections** - Organized groups of videos
-- **Settings** - Account and API configuration
+- **Current LIVE**: how many viewers are watching right now
+- **Sessions** and **Video Plays**: for the selected time range
+- **Top Videos**: your most-played content
+- **Currently live**: which videos are being watched at this moment
+- **Devices**: what your audience watches on
+- **Last Days**: plays over time
 
-## Dashboard Home
+Use the range selector (Today, Yesterday, Last 7 / 30 / 90 Days, All Time) to zoom in or out.
 
-When you log in, the dashboard shows:
+## Portal analytics
 
-- **Recent uploads** - Your latest videos
-- **Quick stats** - Total videos, views, and storage used
-- **Activity feed** - Recent actions on your account
+Dashboard metrics cover playback across portal, embeds, and API-driven players. If you also want page-level web analytics for your portal (referrers, page views), connect Plausible, GA4, or Fathom under [Portal → Analytics](/guides/portal#analytics).
 
-## Videos Section
+<Callout title="Plan availability">
+  Engagement analytics (member-level viewing insight) is available on Growth and Enterprise plans.
+</Callout>
 
-### Browsing Videos
+## Tracking from custom frontends
 
-The Videos page shows all your uploaded content with:
-
-- Thumbnail preview
-- Title and duration
-- Upload date
-- View count
-- Processing status (processing, ready, error)
-
-### Filtering and Search
-
-Use the toolbar to:
-
-- **Search** by title or description
-- **Filter** by status, collection, or date
-- **Sort** by date, views, or title
-
-### Video Actions
-
-Click on any video to:
-
-- **Play** - Preview the video
-- **Edit** - Update title, description, and settings
-- **Share** - Get embed codes and direct links
-- **Delete** - Remove the video
-
-## Settings
-
-Access account settings for:
-
-- **Profile** - Your name and email
-- **API Keys** - Generate and manage API access tokens
-- **Webhooks** - Configure event notifications
-- **Billing** - Subscription and usage information
-
-## Next Steps
-
-<Cards>
-  <Card title="Uploading Videos" href="/guides/uploading-videos" />
-  <Card title="Collections" href="/guides/collections" />
-  <Card title="Embedding Videos" href="/guides/embedding" />
-</Cards>
+Building headless? Report playback events from your own player with the [SDK's analytics methods](/sdk/analytics) so your dashboard stays accurate.

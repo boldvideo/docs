@@ -1,0 +1,66 @@
+---
+title: Streaming (SSE)
+description: How Bold's AI endpoints stream responses with Server-Sent Events
+updated_at: "2026-07-10"
+---
+
+Bold's AI endpoints ([chat](/api/reference/ai-chat), [search](/api/reference/ai-search), [recommendations](/api/reference/ai-recommendations)) stream by default, so viewers see answers appear as they're generated. Responses use standard **Server-Sent Events** (SSE).
+
+## A streamed response, end to end
+
+```bash
+curl -N "https://app.boldvideo.io/api/v1/ai/chat" \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What does Boris say about code review?"}'
+```
+
+```
+data: {"type":"message_start","status":"processing","conversation_id":"f774aa5b-…"}
+
+data: {"type":"conversation_created","conversation_id":"f774aa5b-…"}
+
+data: {"type":"progress","stage":"planning","message":"Working out the angle on your question…"}
+
+data: {"type":"text_delta","delta":"Boris explains that "}
+
+data: {"type":"text_delta","delta":"Claude Code reviews all pull requests…"}
+
+data: {"type":"message_complete","content":"…full answer…","sources":[…],"citations":[…],"conversation_id":"f774aa5b-…","response_type":"answer"}
+```
+
+## Event types
+
+| `type` | Payload | When |
+|--------|---------|------|
+| `message_start` | `conversation_id`, `status` | Immediately |
+| `conversation_created` | `conversation_id` | New conversations only. Store this ID to support follow-up questions |
+| `progress` | `stage`, `message` | While Bold plans and retrieves (great for "thinking…" UI states) |
+| `text_delta` | `delta` | Repeatedly, as the answer streams; concatenate the deltas |
+| `sources` | `sources[]` | When retrieval finds relevant clips |
+| `message_complete` | `content`, `sources`, `citations`, `conversation_id`, `response_type` | Once, at the end: the full answer plus citations to video timestamps |
+
+Unknown event types may be added over time, so ignore what you don't recognize.
+
+## Non-streaming mode
+
+Prefer a single JSON response? Pass `"stream": false` in the request body and you'll get the equivalent of `message_complete` as a regular JSON object.
+
+## Continuing a conversation
+
+POST to the conversation URL (or pass the `conversation_id`) to keep context across turns:
+
+```bash
+curl -N "https://app.boldvideo.io/api/v1/ai/chat/f774aa5b-…" \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "And how does that compare to human review?"}'
+```
+
+Fetch the full history any time with `GET /ai/chat/{conversation_id}`.
+
+<Callout>
+  Using JavaScript? The [SDK](/sdk/streaming) turns these streams into async iterators, no manual SSE parsing.
+</Callout>

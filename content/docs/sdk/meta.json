@@ -1,13 +1,21 @@
 {
   "root": true,
   "title": "SDK",
+  "description": "JavaScript / TypeScript SDK",
   "icon": "Package",
   "pages": [
     "index",
+    "nextjs-starter",
+    "---Core---",
     "videos",
     "playlists",
+    "viewers",
+    "---AI---",
     "ai-methods",
     "streaming",
+    "---More---",
+    "community",
+    "session-management",
     "analytics",
     "types"
   ]

@@ -1,6 +1,16 @@
 {
   "root": true,
   "title": "API",
+  "description": "REST API reference",
   "icon": "Code",
-  "pages": ["index", "reference"]
+  "pages": [
+    "index",
+    "authentication",
+    "errors",
+    "streaming",
+    "webhooks",
+    "machine-readable",
+    "---Endpoints---",
+    "...reference"
+  ]
 }

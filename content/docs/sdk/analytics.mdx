@@ -1,129 +1,40 @@
 ---
 title: Analytics
-description: Track video events and page views with the Bold SDK
+description: Report playback events from your custom player
+updated_at: "2026-07-10"
 ---
 
-The Bold SDK provides analytics methods to track video playback events and page views.
+If you build a custom frontend, report playback events so your [dashboard](/guides/dashboard) reflects reality.
 
-## Methods
+## `trackEvent(video, event)`
 
-### `trackEvent(event)`
-
-Track video playback events like play, pause, and completion.
+Pass the Bold video object and the raw player event. The SDK extracts what it needs (event type, position):
 
 ```typescript
-bold.trackEvent({
-  type: 'play',
-  videoId: 'video-id',
-  currentTime: 0
-});
+const { data: video } = await bold.videos.get('video-id');
 
-bold.trackEvent({
-  type: 'pause',
-  videoId: 'video-id',
-  currentTime: 45.5
-});
-
-bold.trackEvent({
-  type: 'complete',
-  videoId: 'video-id',
-  currentTime: 300
-});
+playerEl.addEventListener('play', (e) => bold.trackEvent(video, e));
+playerEl.addEventListener('pause', (e) => bold.trackEvent(video, e));
+playerEl.addEventListener('timeupdate', (e) => bold.trackEvent(video, e));
+playerEl.addEventListener('ended', (e) => bold.trackEvent(video, e));
 ```
 
-**Parameters:**
+This works with a plain `<video>` element or Mux Player events. The [Next.js starter](/sdk/nextjs-starter) wires this up for you.
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `event` | `TrackEvent` | Yes | Event data object |
-
-**Event Object:**
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `type` | `string` | Yes | Event type (e.g., `play`, `pause`, `complete`) |
-| `videoId` | `string` | Yes | The video ID |
-| `currentTime` | `number` | No | Playback position in seconds |
-
----
-
-### `trackPageView(data)`
-
-Track page navigation and views.
+## `trackPageView(title)`
 
 ```typescript
-bold.trackPageView({
-  path: '/videos/intro-to-ml',
-  title: 'Introduction to Machine Learning',
-  referrer: document.referrer
-});
+bold.trackPageView(document.title);
 ```
 
-**Parameters:**
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `data` | `PageViewData` | Yes | Page view data object |
-
-**PageView Object:**
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `path` | `string` | Yes | Current page path |
-| `title` | `string` | No | Page title |
-| `referrer` | `string` | No | Referring URL |
-
-## Usage Examples
-
-### Video Player Integration
+Call on route changes in an SPA:
 
 ```typescript
-const video = document.querySelector('video');
-const videoId = 'video-id';
-
-video.addEventListener('play', () => {
-  bold.trackEvent({
-    type: 'play',
-    videoId,
-    currentTime: video.currentTime
-  });
-});
-
-video.addEventListener('pause', () => {
-  bold.trackEvent({
-    type: 'pause',
-    videoId,
-    currentTime: video.currentTime
-  });
-});
-
-video.addEventListener('ended', () => {
-  bold.trackEvent({
-    type: 'complete',
-    videoId,
-    currentTime: video.currentTime
-  });
-});
-```
-
-### SPA Page Tracking
-
-```typescript
-// Track initial page load
-bold.trackPageView({
-  path: window.location.pathname,
-  title: document.title
-});
-
-// Track route changes (e.g., with React Router)
 useEffect(() => {
-  bold.trackPageView({
-    path: location.pathname,
-    title: document.title
-  });
-}, [location]);
+  bold.trackPageView(document.title);
+}, [pathname]);
 ```
 
-## Related
+## What about viewer identity?
 
-- [Types](/docs/sdk/types) — Complete type reference
+Playback analytics are anonymous by default. To tie watching to members, use [progress tracking](/sdk/viewers#progress-tracking). That's the per-viewer record.

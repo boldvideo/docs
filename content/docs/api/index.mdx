@@ -1,10 +1,10 @@
 ---
 title: API Overview
-description: Bold Video API Reference documentation
-updated_at: "2025-12-24"
+description: "The Bold REST API: base URL, authentication, and a map of the endpoints"
+updated_at: "2026-07-10"
 ---
 
-The Bold API provides programmatic access to all Bold Video features.
+The Bold API gives you programmatic access to your videos, collections, playlists, viewers, and AI features. It's the same engine behind the hosted portal. Everything the portal can do, your app can do.
 
 ## Base URL
 
@@ -12,26 +12,66 @@ The Bold API provides programmatic access to all Bold Video features.
 https://app.boldvideo.io/api/v1
 ```
 
+All requests and responses are JSON (`Content-Type: application/json`), except AI endpoints which can stream [Server-Sent Events](/api/streaming).
+
 ## Authentication
 
-All API requests require authentication using your API key in the `X-API-Key` header:
+Pass your API key as a Bearer token:
 
 ```bash
-curl -H "X-API-Key: YOUR_API_KEY" \
-  https://app.boldvideo.io/api/v1/videos
+curl "https://app.boldvideo.io/api/v1/videos" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Response Format
+Create keys under **Settings → Developer** in the [admin panel](https://app.boldvideo.io/settings/developer). Details and key handling in [Authentication](/api/authentication).
 
-All responses are returned in JSON format:
+## Response envelope
+
+Successful responses wrap the payload in `data`:
 
 ```json
 {
-  "success": true,
-  "data": { ... }
+  "data": [
+    {
+      "id": "c03a19be-654c-46d9-985d-3094d7485425",
+      "title": "Building Claude Code with Boris Cherny",
+      "duration": 5879,
+      "playback_id": "UEsc00OGc...",
+      "chapters": [...],
+      "transcript": {...}
+    }
+  ]
 }
 ```
 
-## Endpoints
+List endpoints may include a `meta` object with pagination info. Errors use a consistent shape. See [Errors](/api/errors).
 
-Browse the API reference in the sidebar to explore all available endpoints.
+## Endpoint map
+
+| Group | What it covers |
+|-------|---------------|
+| [Videos](/api/reference/videos) | List, fetch, and create videos |
+| [Collections](/api/reference/collections) | Collections and their videos |
+| [Playlists](/api/reference/playlists) | Curated, ordered playlists |
+| [Search](/api/reference/search) | Keyword + semantic search over public content |
+| [Settings](/api/reference/settings) | Portal configuration: branding, menus, featured playlists |
+| [AI Chat](/api/reference/ai-chat) | Library-wide and per-video conversations |
+| [AI Search](/api/reference/ai-search) | Search with AI-synthesized summaries |
+| [AI Recommendations](/api/reference/ai-recommendations) | Topic-based video recommendations |
+| [Viewers](/api/reference/viewers) | Your members: profiles, lookup, memory |
+| [Progress](/api/reference/progress) | Per-viewer, per-video watch progress |
+| [Community](/api/reference/community) | Posts, comments, reactions |
+| [Auth Sessions](/api/reference/auth-sessions) & [Session Management](/api/reference/session-management) | Device sessions and password-sharing prevention |
+
+<Callout>
+  Only public videos are returned by content endpoints. Unlisted videos are accessible by ID but not listed; private videos are admin-only.
+</Callout>
+
+## Choose your integration style
+
+| If you're… | Use |
+|------------|-----|
+| Building in JavaScript/TypeScript | The [SDK](/sdk): typed, with streaming helpers |
+| Starting a portal from scratch | The [Next.js starter](/sdk/nextjs-starter) |
+| Working in another language | This REST API directly |
+| Wiring up AI agents / LLM tools | The [machine-readable docs](/api/machine-readable) and the [MCP server](/mcp) |

@@ -1,37 +1,51 @@
 ---
-title: Documentation
+title: Bold Documentation
 description: Everything you need to put your videos to work with Bold
-updated_at: "2026-01-20"
+updated_at: "2026-07-10"
 ---
 
-Hey there! Whether you're uploading your first video or building a custom integration, we've got you covered.
+Bold turns your video library into searchable, AI-queryable knowledge: hosted, transcribed, chaptered, and ready to answer your members' questions with citations to the exact moment. Whether you're uploading your first video or building a custom integration, start here.
 
-## Get Started
+## I want to…
 
-New to Bold? These guides will have you up and running in minutes.
+- **Get my first video live** → [Quickstart](/guides/quickstart)
+- **Put a video on my website** → [Embedding](/guides/embedding)
+- **Set up my branded portal** → [Your Portal](/guides/portal)
+- **Let members ask questions about my content** → [AI Features](/guides/ai-features)
+- **Build my own frontend** → [Next.js Starter](/sdk/nextjs-starter)
+- **Stop password sharing** → [Session Management](/sdk/session-management)
 
-<Cards>
-  <Card title="Dashboard Overview" href="/guides/dashboard" description="Find your way around" />
-  <Card title="Uploading Videos" href="/guides/uploading-videos" description="Get your content in" />
-  <Card title="Collections" href="/guides/collections" description="Keep things organized" />
-  <Card title="Embedding Videos" href="/guides/embedding" description="Share with the world" />
-  <Card title="AI Coaching" href="/guides/ai-coaching" description="Let AI do the heavy lifting" />
-</Cards>
+## Using Bold
 
-## Build with Bold
-
-Want to integrate Bold into your app? Our API and SDK make it straightforward.
+The admin panel, from upload to portal:
 
 <Cards>
-  <Card title="API Reference" href="/api" description="Full REST API docs" />
-  <Card title="JavaScript SDK" href="/sdk" description="TypeScript/JS library" />
+  <Card title="Quickstart" href="/guides/quickstart" description="Login to first shared video in ten minutes" />
+  <Card title="Uploading & Managing Videos" href="/guides/uploading-videos" description="Uploads, imports, metadata, and AI actions" />
+  <Card title="AI Features" href="/guides/ai-features" description="Search, chat, and coaching, in your voice" />
+  <Card title="Your Portal" href="/guides/portal" description="Branded, hosted, or fully headless" />
 </Cards>
 
-### Quick taste
+## Building with Bold
+
+APIs, SDK, and starters for custom integrations:
+
+<Cards>
+  <Card title="API Reference" href="/api" description="REST API: videos, viewers, AI, and more" />
+  <Card title="JavaScript SDK" href="/sdk" description="@boldvideo/bold-js, fully typed" />
+  <Card title="Next.js Starter" href="/sdk/nextjs-starter" description="A complete portal, deployable in minutes" />
+  <Card title="MCP Server" href="/mcp" description="Your library as a tool for AI agents (draft)" />
+</Cards>
+
+## Quick taste
 
 ```bash
 curl "https://app.boldvideo.io/api/v1/videos" \
-  -H "X-API-Key: YOUR_API_KEY"
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-That's it. Check out the [API docs](/api) for the full menu.
+Get an API key under [Settings → Developer](https://app.boldvideo.io/settings/developer), then explore the [API docs](/api).
+
+## For AI assistants
+
+These docs are LLM-first: [`/llms.txt`](/llms.txt) indexes every page, [`/llms-full.txt`](/llms-full.txt) is the whole site in one file, and the API ships an [OpenAPI spec and its own llms.txt](/api/machine-readable). Point your agent at them.

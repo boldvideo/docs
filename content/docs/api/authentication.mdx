@@ -1,0 +1,54 @@
+---
+title: Authentication
+description: API keys, Bearer tokens, and how the auth layers fit together
+updated_at: "2026-07-10"
+---
+
+## API keys
+
+Create an API key under [**Settings → Developer**](https://app.boldvideo.io/settings/developer). Keys look like this:
+
+```
+bold_live_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+The full key is shown **once**, at creation. Copy it, download it as an `.env` file, or grab a ready-made SDK snippet from the same dialog.
+
+## Making authenticated requests
+
+Send the key as a Bearer token in the `Authorization` header:
+
+```bash
+curl "https://app.boldvideo.io/api/v1/videos" \
+  -H "Authorization: Bearer bold_live_XXXXXXXXXXXXXXXX"
+```
+
+Requests without a valid key receive a `401`:
+
+```json
+{ "error": "Unauthorized", "status": 401 }
+```
+
+## Keep keys server-side
+
+Your API key grants access to your whole channel, including viewer data. Treat it like a password:
+
+- **Never ship it in browser or mobile code.** Call Bold from your backend, or proxy requests through your server.
+- Store it in environment variables, not in source control.
+- If a key leaks, revoke it in **Settings → Developer** and create a new one.
+
+<Callout>
+  Building a viewer-facing frontend? Public content endpoints still require your key, so route those calls through your backend (the [Next.js starter](/sdk/nextjs-starter) shows the pattern with server components).
+</Callout>
+
+## The three auth layers
+
+Most integrations only ever need layer 1. The other two exist for session management (password-sharing prevention):
+
+| Layer | Credential | Used by | For |
+|-------|-----------|---------|-----|
+| **1. Tenant API key** | `Authorization: Bearer bold_live_…` | Your backend | All standard endpoints: videos, viewers, AI, progress, community, server-side session management |
+| **2. Viewer runtime** | Your auth provider's JWT + `X-Bold-Tenant-Slug` header | Your frontend | `/auth/sessions/*` and `/auth/challenges/*`: viewers registering and verifying their own device sessions |
+| **3. Admin controls** | Tenant API key | Your backend | `/admin/*`: auth policy and per-viewer session overrides |
+
+The [Session Management SDK guide](/sdk/session-management) walks through when each layer comes into play.

@@ -1,46 +1,40 @@
 ---
 title: Webhooks
-description: Receive real-time notifications for Bold events
-updated_at: "2025-12-24"
+description: Get notified when things happen in your Bold channel
+updated_at: "2026-07-10"
 ---
 
-Webhooks allow you to receive real-time HTTP notifications when events occur in your Bold account.
+<Callout type="warn" title="Early access">
+  Webhooks are in early access. The signing mechanism below is stable; the event catalog is still being finalized. If you want webhooks for a specific workflow, [contact us](mailto:support@boldvideo.com) and we'll set you up.
+</Callout>
 
-## Setting Up Webhooks
+Webhooks let your systems react to events in Bold, most importantly knowing when a video has finished processing so you can publish it, notify members, or kick off your own pipeline.
 
-1. Go to your Bold dashboard
-2. Navigate to Settings > Webhooks
-3. Add your endpoint URL
-4. Select the events you want to receive
+## Verifying payloads
 
-## Events
+Every webhook request is signed so you can verify it genuinely came from Bold.
 
-| Event | Description |
-|-------|-------------|
-| `video.uploaded` | A new video has been uploaded |
-| `video.processed` | Video processing is complete |
-| `video.deleted` | A video has been deleted |
-| `ai.analysis.complete` | AI analysis has finished |
+1. Generate your **webhook signing secret** under [**Settings → Developer**](https://app.boldvideo.io/settings/developer)
+2. Each delivery includes a signature header computed as an HMAC SHA-256 of the raw request body with your secret
+3. Recompute the HMAC on your side and compare (constant-time comparison, please)
 
-## Payload Format
+```ts
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
-```json
-{
-  "event": "video.processed",
-  "timestamp": "2025-12-24T12:00:00Z",
-  "data": {
-    "video_id": "vid_123456",
-    "status": "ready"
-  }
+function verify(rawBody: string, signatureHeader: string, secret: string) {
+  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(signatureHeader));
 }
 ```
 
-## Verifying Webhooks
+Reject anything that doesn't verify.
 
-All webhook payloads include a signature header for verification:
+## Delivery behavior
 
-```
-X-Bold-Signature: sha256=abc123...
-```
+- Deliveries are `POST` requests with a JSON body
+- Respond with a `2xx` quickly (do heavy work async). Non-`2xx` responses are retried
+- Handle duplicates idempotently: use the event ID to deduplicate
 
-Verify using HMAC SHA-256 with your webhook secret.
+## Typical events
+
+The catalog is being finalized, but the workhorse is video lifecycle: *video processed / ready*, fired when transcription, chapters, and AI metadata are complete. This is the moment to flip your own publish switch or notify members of new content.

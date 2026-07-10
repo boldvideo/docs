@@ -1,0 +1,47 @@
+---
+title: Bold MCP Server
+description: "Your video library as a tool for AI agents: Claude, Cursor, and beyond"
+updated_at: "2026-07-10"
+---
+
+<Callout type="warn" title="Draft: coming soon">
+  The Bold MCP server is in development and this page describes the intended design. Names, transport, and setup will be finalized at launch, so treat everything below as subject to change. Want early access? [Get in touch](mailto:support@boldvideo.com).
+</Callout>
+
+The Bold MCP server exposes your video library through the [Model Context Protocol](https://modelcontextprotocol.io), so AI tools your members already use (Claude, Cursor, and whatever comes next) can search your library, pull transcripts, and answer questions grounded in your content.
+
+## Why this matters
+
+Your library stops being a destination people have to visit and becomes a knowledge source that follows your members into their tools. A developer can ask Cursor "how did the workshop say to structure this?" and get the answer, cited to the exact clip, without leaving their editor.
+
+## What the server will expose
+
+**Tools**
+
+| Tool | What it does |
+|------|-------------|
+| Search | Semantic search across the library, returning clips with timestamps |
+| Ask | Question answering with citations (the same engine as [AI chat](/api/reference/ai-chat)) |
+| Get video | Metadata, chapters, and transcript for a specific video |
+| List collections / playlists | Browse the library's structure |
+
+**Resources**: video transcripts and intelligence reports, addressable by video.
+
+## Expected setup
+
+Configuration will follow the standard MCP remote-server pattern, authenticated with a Bold API key:
+
+```json
+{
+  "mcpServers": {
+    "bold": {
+      "url": "https://mcp.boldvideo.io",
+      "headers": { "Authorization": "Bearer YOUR_API_KEY" }
+    }
+  }
+}
+```
+
+## Today, without MCP
+
+You can already give AI agents everything they need to build against Bold. See [LLM & machine-readable docs](/api/machine-readable). For end-user Q&A inside your own product, the [AI endpoints](/api/reference/ai-chat) and [SDK](/sdk/ai-methods) are production-ready now.

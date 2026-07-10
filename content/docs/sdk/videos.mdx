@@ -1,125 +1,81 @@
 ---
 title: Videos
-description: List, get, and search videos using the Bold SDK
+description: List, fetch, and search videos with the SDK
+updated_at: "2026-07-10"
 ---
 
-The `videos` namespace provides methods for retrieving video content from your Bold library.
+The `videos` namespace reads video content from your library. Only **public** videos are returned by list endpoints; unlisted videos resolve by direct ID.
 
-## Methods
-
-### `videos.list()`
-
-Retrieve all videos in your library.
+## `videos.list(options?)`
 
 ```typescript
-const videos = await bold.videos.list();
+// Latest videos (default: 12)
+const { data: videos } = await bold.videos.list();
 
-for (const video of videos) {
-  console.log(video.title, video.duration);
-}
+// With a limit
+const { data: videos } = await bold.videos.list(20);
+
+// Filtered
+const { data: videos } = await bold.videos.list({
+  limit: 20,
+  tag: 'sales',
+  collectionId: 'col_123',
+  viewerId: 'viewer_123'  // include this viewer's watch progress
+});
+
+// Paginated browsing
+const { data: videos } = await bold.videos.list({
+  page: 2,
+  tag: 'sales'
+});
 ```
 
-**Returns:** `Promise<Video[]>`
+| Option | Type | Description |
+|--------|------|-------------|
+| `limit` | `number` | Max videos (latest-style queries) |
+| `page` | `number` | Page number (paginated queries, mutually exclusive with `limit`) |
+| `tag` | `string` | Filter by tag |
+| `collectionId` | `string` | Filter by collection |
+| `viewerId` | `string` | Attach the viewer's progress to each video |
 
----
-
-### `videos.get(id)`
-
-Get a specific video by ID.
+## `videos.get(idOrSlug)`
 
 ```typescript
-const video = await bold.videos.get('video-id');
+const { data: video } = await bold.videos.get('video-id');
+const { data: video } = await bold.videos.get('my-video-slug');
 
 console.log(video.title);
-console.log(video.description);
-console.log(video.chapters);
+console.log(video.playbackId);   // for your player
+console.log(video.chapters);     // [{ title, start }, …]
+console.log(video.transcript);   // full transcript with segments
 ```
 
-**Parameters:**
+Works with either the video's UUID or its slug.
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `id` | `string` | Yes | The video ID |
-
-**Returns:** `Promise<Video>`
-
----
-
-### `videos.search(query)`
-
-Search videos by query string.
+## `videos.search(term)`
 
 ```typescript
-const results = await bold.videos.search('machine learning');
-
-for (const video of results) {
-  console.log(video.title);
-}
+const { data: results } = await bold.videos.search('pricing strategies');
 ```
 
-**Parameters:**
+Keyword + semantic search over public videos. For search with an AI-synthesized answer, use [`ai.search`](/sdk/ai-methods#aisearchoptions).
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `query` | `string` | Yes | Search query |
+## The Video object
 
-**Returns:** `Promise<Video[]>`
+The fields you'll actually use:
 
-## Video Type
+| Field | Description |
+|-------|-------------|
+| `id`, `slug`, `title`, `teaser`, `description` | Identity and metadata |
+| `playbackId`, `streamUrl` | Playback: works with Mux Player or any HLS player |
+| `duration` | Seconds |
+| `thumbnail` | Thumbnail URL |
+| `chapters` | Timestamped chapters |
+| `transcript` | Full transcript (text + segments) |
+| `captions` | Caption tracks |
+| `attachments` | Files attached to the video |
+| `downloadUrls` | MP4 / audio downloads |
+| `cta` | The video's call-to-action, if set |
+| `tags`, `type`, `publishedAt` | Organization |
 
-```typescript
-interface Video {
-  id: string;
-  playbackId: string;
-  title: string;
-  description?: string;
-  duration: number;
-  status: string;
-  publishedAt: string;
-  createdAt: string;
-  updatedAt: string;
-  captions?: VideoSubtitles[];
-  chapters?: Chapter[];
-  attachments?: VideoAttachment[];
-  transcript?: VideoTranscript;
-  downloadUrls?: VideoDownloadUrls;
-  metadata?: VideoMetadata;
-}
-```
-
-### Related Types
-
-```typescript
-interface VideoAttachment {
-  id: string;
-  title: string;
-  fileUrl: string;
-  size: number;
-  type: string;
-}
-
-interface VideoDownloadUrls {
-  mp4?: string;
-  audio?: string;
-  legacyMp4?: string;
-}
-
-interface VideoSubtitles {
-  language: string;
-  engine: string;
-  url: string;
-}
-
-interface VideoTranscript {
-  text: string;
-  json: TranscriptSegment[];
-}
-
-interface VideoMetadata {
-  title?: string;
-  description?: string;
-  image?: string;
-}
-```
-
-See [Types](/docs/sdk/types) for complete type definitions.
+Full definitions in [Types](/sdk/types).

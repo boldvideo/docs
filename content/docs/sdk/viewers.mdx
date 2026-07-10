@@ -1,0 +1,74 @@
+---
+title: Viewers & Progress
+description: Sync your members to Bold and track their watch progress
+updated_at: "2026-07-10"
+---
+
+The `viewers` namespace connects your users to Bold. Create a viewer when someone signs up, look them up by your own user ID, and track what they've watched: the backbone of course dashboards, "continue watching," and personalized AI.
+
+<Callout>
+  These are server-side methods: they use your API key. Call them from your backend.
+</Callout>
+
+## Managing viewers
+
+```typescript
+// Create a viewer when a user signs up
+const { data: viewer } = await bold.viewers.create({
+  name: 'John Doe',
+  externalId: 'user_123',        // your platform's user ID
+  email: 'john@example.com',
+  traits: { plan: 'pro', company_name: 'Acme Inc' }
+});
+
+// Find them again, by your ID or email
+const { data: viewer } = await bold.viewers.lookup({ externalId: 'user_123' });
+const { data: viewer } = await bold.viewers.lookup({ email: 'john@example.com' });
+
+// Update (note: traits are replaced, not merged)
+await bold.viewers.update(viewer.id, {
+  traits: { plan: 'enterprise' }
+});
+
+// List everyone
+const { data: viewers } = await bold.viewers.list();
+```
+
+`traits` are freeform: plan, cohort, experience level. They feed AI personalization: the more Bold knows about who's asking, the better the answer fits.
+
+## Progress tracking
+
+```typescript
+// Save progress as the video plays (every 5–10 seconds is plenty)
+await bold.viewers.saveProgress(viewerId, videoId, {
+  currentTime: 120,   // seconds
+  duration: 600
+});
+
+// currentTime === duration marks the video complete
+await bold.viewers.saveProgress(viewerId, videoId, {
+  currentTime: 600,
+  duration: 600
+});
+
+// Read progress for one video
+const { data: progress } = await bold.viewers.getProgress(viewerId, videoId);
+console.log(`${progress.percentage}% complete`);
+
+// A course dashboard in one call
+const { data: progress, meta } = await bold.viewers.listProgress(viewerId, {
+  collectionId: 'course-collection-id',
+  completed: false          // only in-progress videos
+});
+console.log(`Completed ${meta.completed} of ${meta.total} videos`);
+```
+
+## Viewer memory
+
+Bold keeps a lightweight "memory" per viewer to personalize AI conversations over time. The SDK doesn't wrap these endpoints yet. Use the [REST API](/api/reference/viewers) directly (`GET`/`PATCH`/`DELETE /viewers/{viewer_id}/memory`), for example to clear a member's memory on a data-deletion request.
+
+## Related
+
+- [Team & Viewers](/guides/team-viewers), the admin-panel view of the same data
+- [Session Management](/sdk/session-management), device limits per viewer
+- [Progress API reference](/api/reference/progress)

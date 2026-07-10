@@ -1,62 +1,41 @@
 ---
 title: Playlists
-description: Manage video playlists using the Bold SDK
+description: Fetch curated playlists and their videos
+updated_at: "2026-07-10"
 ---
 
-The `playlists` namespace provides methods for retrieving playlist content.
+The `playlists` namespace reads the playlists you curate in the [admin panel](/guides/collections-playlists#playlists).
 
-## Methods
-
-### `playlists.list()`
-
-Retrieve all playlists in your library.
+## `playlists.list()`
 
 ```typescript
-const playlists = await bold.playlists.list();
+const { data: playlists } = await bold.playlists.list();
 
 for (const playlist of playlists) {
   console.log(playlist.title, playlist.videos.length);
 }
 ```
 
-**Returns:** `Promise<Playlist[]>`
-
----
-
-### `playlists.get(id)`
-
-Get a specific playlist by ID.
+## `playlists.get(id)`
 
 ```typescript
-const playlist = await bold.playlists.get('playlist-id');
+const { data: playlist } = await bold.playlists.get('playlist-id');
 
 console.log(playlist.title);
-console.log(playlist.description);
-
 for (const video of playlist.videos) {
-  console.log(video.title);
+  console.log(video.title); // in the order you arranged them
 }
 ```
 
-**Parameters:**
+## Featured playlists
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `id` | `string` | Yes | The playlist ID |
-
-**Returns:** `Promise<Playlist>`
-
-## Playlist Type
+The playlists you mark as featured (Settings → Featured Playlists) come back with your channel settings, ready for a homepage:
 
 ```typescript
-interface Playlist {
-  id: string;
-  title: string;
-  description?: string;
-  videos: Video[];
-  createdAt: string;
-  updatedAt: string;
+const settings = await bold.settings();
+for (const playlist of settings.featuredPlaylists) {
+  renderRow(playlist);
 }
 ```
 
-See [Types](/docs/sdk/types) for complete type definitions.
+Full type definitions in [Types](/sdk/types).
