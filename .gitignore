@@ -3,7 +3,6 @@
 
 # generated content
 .source
-/openapi/spec.json
 /content/docs/api/reference
 
 # test & build
