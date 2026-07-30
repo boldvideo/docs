@@ -4,12 +4,24 @@ import { mkdir, writeFile } from "node:fs/promises";
 const OPENAPI_URL =
   process.env.OPENAPI_URL || "https://app.boldvideo.io/api/openapi";
 
+// Operations the backend advertises but the public docs must not show. The
+// API token ships in client-side code, so documenting write endpoints that
+// mutate the library invites abuse. Removed on every fetch so they cannot
+// reappear when the backend spec changes.
+const EXCLUDED_OPERATIONS: Array<{ path: string; method: string }> = [
+  { path: "/api/v1/videos", method: "post" },
+];
+
 function sanitizeSpec(spec: Record<string, unknown>): Record<string, unknown> {
   const paths = spec.paths as
     | Record<string, Record<string, unknown>>
     | undefined;
 
   if (paths) {
+    for (const excluded of EXCLUDED_OPERATIONS) {
+      delete paths[excluded.path]?.[excluded.method];
+    }
+
     for (const path of Object.keys(paths)) {
       const methods = [
         "get",
