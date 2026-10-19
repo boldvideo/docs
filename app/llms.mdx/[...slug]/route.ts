@@ -1,0 +1,28 @@
+import { notFound } from "next/navigation";
+import { getLLMText, source } from "@/lib/source";
+
+export const revalidate = false;
+
+export async function GET(
+  _request: Request,
+  { params }: RouteContext<"/llms.mdx/[...slug]">,
+) {
+  const { slug } = await params;
+  const page = source.getPage(
+    slug.length === 1 && slug[0] === "index" ? [] : slug,
+  );
+  if (!page) notFound();
+
+  return new Response(await getLLMText(page), {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      Vary: "Accept",
+    },
+  });
+}
+
+export function generateStaticParams() {
+  return source.getPages().map((page) => ({
+    slug: page.slugs.length === 0 ? ["index"] : page.slugs,
+  }));
+}

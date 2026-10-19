@@ -43,3 +43,30 @@ resources:
   features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 - [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
+
+## Agent and crawler routes
+
+- `/robots.txt` allows all crawlers and advertises `/sitemap.xml`.
+- `/sitemap.xml` follows the Fumadocs source, including generated API pages.
+  `lastModified` uses `updated_at`, falling back to the source file's modification
+  time (captured during the build).
+- Append `.md` to a docs URL for its Markdown representation; the home page is
+  `/index.md` (`/.md` also works). `/llms.txt` lists these URLs, and HTML pages
+  advertise them with a `text/markdown` alternate link.
+- `Accept: text/markdown` rewrites a docs request to Markdown without redirecting.
+  HTML preferences, quality weights, and ordinary browser requests are respected.
+  API handlers, images, and Next.js assets are not negotiated.
+
+Markdown reuses Fumadocs MDX's `includeProcessedMarkdown` and
+`getText('processed')` through `getLLMText`, also used by `/llms-full.txt`.
+It contains page content, not the rendered layout.
+
+**Hosting:** `proxy.ts` sets `Vary: Accept` on both negotiated branches, and
+Markdown responses retain it. Next.js 16.0.10 overwrites `Vary` on HTML page
+responses. At a shared CDN, append `Accept` to the HTML response's existing
+`Vary` values and ensure the cache distinguishes the representations (or bypass
+caching for negotiated docs requests). Do not replace Next.js's existing RSC
+`Vary` values. Check this on the deployed hostname; application-level headers
+alone cannot fix the HTML response. No setting is needed for direct `.md` URLs.
+
+Run the negotiation regression test with `bun test proxy.test.ts`.
