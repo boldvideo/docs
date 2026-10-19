@@ -18,11 +18,7 @@
             "type": "string"
           },
           "platform": {
-            "enum": [
-              "web",
-              "ios",
-              "android"
-            ],
+            "enum": ["web", "ios", "android"],
             "type": "string"
           },
           "user_agent": {
@@ -30,10 +26,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "device_id",
-          "platform"
-        ],
+        "required": ["device_id", "platform"],
         "title": "CreateAuthSessionRequest",
         "type": "object"
       },
@@ -41,10 +34,7 @@
         "description": "Request for AI-powered video recommendations",
         "example": {
           "limit": 5,
-          "topics": [
-            "authentication",
-            "user management"
-          ]
+          "topics": ["authentication", "user management"]
         },
         "properties": {
           "collection_id": {
@@ -85,19 +75,14 @@
           },
           "topics": {
             "description": "Topics or learning goals",
-            "example": [
-              "authentication",
-              "getting started"
-            ],
+            "example": ["authentication", "getting started"],
             "items": {
               "type": "string"
             },
             "type": "array"
           }
         },
-        "required": [
-          "topics"
-        ],
+        "required": ["topics"],
         "title": "AiRecommendationsRequest",
         "type": "object"
       },
@@ -141,10 +126,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "source_url",
-          "title"
-        ],
+        "required": ["source_url", "title"],
         "title": "VideoIngestRequest",
         "type": "object"
       },
@@ -166,10 +148,7 @@
           },
           "scope": {
             "description": "Conversation scope: video (video-scoped chat) or library (library-wide chat)",
-            "enum": [
-              "video",
-              "library"
-            ],
+            "enum": ["video", "library"],
             "nullable": true,
             "type": "string"
           },
@@ -276,11 +255,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "computed_display_name"
-        ],
+        "required": ["id", "name", "computed_display_name"],
         "title": "Viewer",
         "type": "object"
       },
@@ -307,16 +282,11 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "reacted",
-              "reactions_count"
-            ],
+            "required": ["reacted", "reactions_count"],
             "type": "object"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "ReactionResponse",
         "type": "object"
       },
@@ -324,12 +294,7 @@
         "properties": {
           "callback_status": {
             "description": "Callback delivery status",
-            "enum": [
-              "pending",
-              "delivered",
-              "failed",
-              "blocked"
-            ],
+            "enum": ["pending", "delivered", "failed", "blocked"],
             "nullable": true,
             "type": "string"
           },
@@ -358,11 +323,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "status",
-          "created_at"
-        ],
+        "required": ["id", "status", "created_at"],
         "title": "VideoIngestResponse",
         "type": "object"
       },
@@ -480,28 +441,16 @@
             "type": "string"
           },
           "enforcement_mode": {
-            "enum": [
-              "block_new",
-              "kick_oldest",
-              "challenge_new"
-            ],
+            "enum": ["block_new", "kick_oldest", "challenge_new"],
             "type": "string"
           },
           "enforcement_phase": {
-            "enum": [
-              "off",
-              "shadow",
-              "enforce"
-            ],
+            "enum": ["off", "shadow", "enforce"],
             "type": "string"
           },
           "impossible_travel_mode": {
             "description": "Impossible travel detection mode. off disables detection.",
-            "enum": [
-              "off",
-              "flag_only",
-              "challenge"
-            ],
+            "enum": ["off", "flag_only", "challenge"],
             "type": "string"
           },
           "impossible_travel_speed_kmh": {
@@ -524,11 +473,7 @@
       "VerifyAuthSessionResponse": {
         "properties": {
           "reason": {
-            "enum": [
-              "session_not_found",
-              "session_revoked",
-              "session_expired"
-            ],
+            "enum": ["session_not_found", "session_revoked", "session_expired"],
             "nullable": true,
             "type": "string"
           },
@@ -536,9 +481,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "valid"
-        ],
+        "required": ["valid"],
         "title": "VerifyAuthSessionResponse",
         "type": "object"
       },
@@ -549,9 +492,7 @@
             "$ref": "#/components/schemas/CommunityPost"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CommunityPostResponse",
         "type": "object"
       },
@@ -595,10 +536,7 @@
           },
           "scope": {
             "description": "Conversation scope",
-            "enum": [
-              "video",
-              "library"
-            ],
+            "enum": ["video", "library"],
             "type": "string"
           },
           "status": {
@@ -650,9 +588,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "AdminDeviceLimitResponse",
         "type": "object"
       },
@@ -668,10 +604,7 @@
             "$ref": "#/components/schemas/ConversationPagination"
           }
         },
-        "required": [
-          "conversations",
-          "pagination"
-        ],
+        "required": ["conversations", "pagination"],
         "title": "LibraryConversationListResponse",
         "type": "object"
       },
@@ -689,11 +622,7 @@
             "properties": {
               "category": {
                 "description": "Post category (optional, defaults to 'general')",
-                "enum": [
-                  "announcements",
-                  "q_and_a",
-                  "general"
-                ],
+                "enum": ["announcements", "q_and_a", "general"],
                 "example": "announcements",
                 "type": "string"
               },
@@ -703,15 +632,11 @@
                 "type": "string"
               }
             },
-            "required": [
-              "content"
-            ],
+            "required": ["content"],
             "type": "object"
           }
         },
-        "required": [
-          "post"
-        ],
+        "required": ["post"],
         "title": "CommunityPostCreate",
         "type": "object"
       },
@@ -724,9 +649,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": ["limit"],
         "title": "SessionManagementDeviceLimitRequest",
         "type": "object"
       },
@@ -761,28 +684,16 @@
             "type": "string"
           },
           "enforcement_mode": {
-            "enum": [
-              "block_new",
-              "kick_oldest",
-              "challenge_new"
-            ],
+            "enum": ["block_new", "kick_oldest", "challenge_new"],
             "type": "string"
           },
           "enforcement_phase": {
-            "enum": [
-              "off",
-              "shadow",
-              "enforce"
-            ],
+            "enum": ["off", "shadow", "enforce"],
             "type": "string"
           },
           "impossible_travel_mode": {
             "description": "Impossible travel detection mode. off disables detection.",
-            "enum": [
-              "off",
-              "flag_only",
-              "challenge"
-            ],
+            "enum": ["off", "flag_only", "challenge"],
             "type": "string"
           },
           "impossible_travel_speed_kmh": {
@@ -814,9 +725,7 @@
             "$ref": "#/components/schemas/SessionManagementViewerState"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "SessionManagementViewerStateResponse",
         "type": "object"
       },
@@ -848,11 +757,7 @@
             "type": "integer"
           },
           "effective_device_limit_source": {
-            "enum": [
-              "policy",
-              "override",
-              "exempt"
-            ],
+            "enum": ["policy", "override", "exempt"],
             "type": "string"
           },
           "external_id": {
@@ -894,11 +799,7 @@
           },
           "category": {
             "description": "Post category",
-            "enum": [
-              "announcements",
-              "q_and_a",
-              "general"
-            ],
+            "enum": ["announcements", "q_and_a", "general"],
             "example": "announcements",
             "type": "string"
           },
@@ -926,10 +827,7 @@
                 "type": "array"
               }
             },
-            "required": [
-              "count",
-              "commented_by"
-            ],
+            "required": ["count", "commented_by"],
             "type": "object"
           },
           "content": {
@@ -980,10 +878,7 @@
                 "type": "boolean"
               }
             },
-            "required": [
-              "count",
-              "reacted_by"
-            ],
+            "required": ["count", "reacted_by"],
             "type": "object"
           },
           "updated_at": {
@@ -1012,9 +907,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "exempt"
-        ],
+        "required": ["exempt"],
         "title": "SessionManagementExemptionRequest",
         "type": "object"
       },
@@ -1025,9 +918,7 @@
             "$ref": "#/components/schemas/Viewer"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "ViewerResponse",
         "type": "object"
       },
@@ -1058,9 +949,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "title": "AuthChallengeError",
         "type": "object"
       },
@@ -1073,9 +962,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "AuthSessionsListResponse",
         "type": "object"
       },
@@ -1086,9 +973,7 @@
             "$ref": "#/components/schemas/Video"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "VideoResponse",
         "type": "object"
       },
@@ -1162,10 +1047,7 @@
           },
           "kind": {
             "description": "Discriminates citation provenance:\n- `\"chunk\"` (default) — transcript chunk, resource, or attachment\n- `\"moment\"` — LLM-extracted curated moment (insight / story / framework / q_and_a / exercise)\nWhen `\"moment\"`, the `moment_id`, `type`, `summary`, and `transcript_excerpt`\nfields are populated.\n",
-            "enum": [
-              "chunk",
-              "moment"
-            ],
+            "enum": ["chunk", "moment"],
             "type": "string"
           },
           "matched_sentence": {
@@ -1297,13 +1179,7 @@
           },
           "type": {
             "description": "Moment type (present only when `kind=\"moment\"`)",
-            "enum": [
-              "insight",
-              "story",
-              "framework",
-              "q_and_a",
-              "exercise"
-            ],
+            "enum": ["insight", "story", "framework", "q_and_a", "exercise"],
             "nullable": true,
             "type": "string"
           },
@@ -1317,14 +1193,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "video_id",
-          "title",
-          "text",
-          "timestamp",
-          "cited"
-        ],
+        "required": ["id", "video_id", "title", "text", "timestamp", "cited"],
         "title": "Citation",
         "type": "object"
       },
@@ -1366,10 +1235,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "ok",
-          "revoked_count"
-        ],
+        "required": ["ok", "revoked_count"],
         "title": "RevokeOthersResponse",
         "type": "object"
       },
@@ -1378,12 +1244,7 @@
         "properties": {
           "accepted_media_types": {
             "description": "Accepted base64 media types (only present when enabled)",
-            "example": [
-              "image/png",
-              "image/jpeg",
-              "image/webp",
-              "image/gif"
-            ],
+            "example": ["image/png", "image/jpeg", "image/webp", "image/gif"],
             "items": {
               "type": "string"
             },
@@ -1400,9 +1261,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "enabled"
-        ],
+        "required": ["enabled"],
         "title": "MultimodalSettings",
         "type": "object"
       },
@@ -1465,11 +1324,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "slug"
-        ],
+        "required": ["id", "name", "slug"],
         "title": "Collection",
         "type": "object"
       },
@@ -1492,10 +1347,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "ok",
-          "revoked_count"
-        ],
+        "required": ["ok", "revoked_count"],
         "title": "AdminRevokeAllResponse",
         "type": "object"
       },
@@ -1653,9 +1505,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "LibraryAiChatRequest",
         "type": "object"
       },
@@ -1668,15 +1518,11 @@
             "type": "array"
           },
           "error": {
-            "enum": [
-              "device_limit_exceeded"
-            ],
+            "enum": ["device_limit_exceeded"],
             "type": "string"
           }
         },
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "title": "DeviceLimitError",
         "type": "object"
       },
@@ -1739,9 +1585,7 @@
             "$ref": "#/components/schemas/Collection"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CollectionResponse",
         "type": "object"
       },
@@ -1808,10 +1652,7 @@
                 },
                 "role": {
                   "description": "Whether this is the original language or a translation",
-                  "enum": [
-                    "source",
-                    "translation"
-                  ],
+                  "enum": ["source", "translation"],
                   "type": "string"
                 },
                 "subtitle_url": {
@@ -1914,10 +1755,7 @@
           },
           "playback_mode": {
             "description": "How the public player should source the stream. \"native\" plays from Mux; \"source\" embeds the original imported provider (e.g., YouTube). Always present.",
-            "enum": [
-              "native",
-              "source"
-            ],
+            "enum": ["native", "source"],
             "example": "native",
             "type": "string"
           },
@@ -1978,10 +1816,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "title"
-        ],
+        "required": ["id", "title"],
         "title": "Video",
         "type": "object"
       },
@@ -2018,24 +1853,18 @@
             "type": "string"
           }
         },
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "title": "AdminErrorResponse",
         "type": "object"
       },
       "SelfManagementDisabledError": {
         "properties": {
           "error": {
-            "enum": [
-              "self_management_disabled"
-            ],
+            "enum": ["self_management_disabled"],
             "type": "string"
           }
         },
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "title": "SelfManagementDisabledError",
         "type": "object"
       },
@@ -2076,11 +1905,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "title",
-          "file_url"
-        ],
+        "required": ["id", "title", "file_url"],
         "title": "Attachment",
         "type": "object"
       },
@@ -2118,11 +1943,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "id",
-          "title",
-          "is_private"
-        ],
+        "required": ["id", "title", "is_private"],
         "title": "Playlist",
         "type": "object"
       },
@@ -2149,9 +1970,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "recommendations"
-        ],
+        "required": ["recommendations"],
         "title": "AiRecommendationsResponse",
         "type": "object"
       },
@@ -2178,15 +1997,11 @@
                 "type": "string"
               }
             },
-            "required": [
-              "content"
-            ],
+            "required": ["content"],
             "type": "object"
           }
         },
-        "required": [
-          "comment"
-        ],
+        "required": ["comment"],
         "title": "CommunityCommentCreate",
         "type": "object"
       },
@@ -2197,9 +2012,7 @@
             "$ref": "#/components/schemas/ViewerMemory"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "ViewerMemoryResponse",
         "type": "object"
       },
@@ -2211,9 +2024,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "code"
-        ],
+        "required": ["code"],
         "title": "VerifyAuthChallengeRequest",
         "type": "object"
       },
@@ -2251,19 +2062,11 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "page",
-              "page_size",
-              "total_entries",
-              "total_pages"
-            ],
+            "required": ["page", "page_size", "total_entries", "total_pages"],
             "type": "object"
           }
         },
-        "required": [
-          "data",
-          "meta"
-        ],
+        "required": ["data", "meta"],
         "title": "ViewersResponse",
         "type": "object"
       },
@@ -2278,9 +2081,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "PlaylistsResponse",
         "type": "object"
       },
@@ -2295,9 +2096,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CollectionVideosResponse",
         "type": "object"
       },
@@ -2321,27 +2120,16 @@
           },
           "media_type": {
             "description": "MIME type of the image",
-            "enum": [
-              "image/png",
-              "image/jpeg",
-              "image/webp",
-              "image/gif"
-            ],
+            "enum": ["image/png", "image/jpeg", "image/webp", "image/gif"],
             "type": "string"
           },
           "type": {
             "description": "Image type",
-            "enum": [
-              "base64"
-            ],
+            "enum": ["base64"],
             "type": "string"
           }
         },
-        "required": [
-          "type",
-          "media_type",
-          "data"
-        ],
+        "required": ["type", "media_type", "data"],
         "title": "AiImageBase64",
         "type": "object"
       },
@@ -2354,25 +2142,17 @@
           },
           "degraded_reason": {
             "description": "Coarse public reason for degraded retrieval, when degraded is true",
-            "enum": [
-              "stage1_exhausted"
-            ],
+            "enum": ["stage1_exhausted"],
             "nullable": true,
             "type": "string"
           },
           "retrieval_mode": {
             "description": "Whether the answer used the normal retrieval path or a degraded fallback path",
-            "enum": [
-              "normal",
-              "degraded"
-            ],
+            "enum": ["normal", "degraded"],
             "type": "string"
           }
         },
-        "required": [
-          "retrieval_mode",
-          "degraded"
-        ],
+        "required": ["retrieval_mode", "degraded"],
         "title": "LibraryAiRetrievalMetadata",
         "type": "object"
       },
@@ -2448,10 +2228,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "version",
-          "data"
-        ],
+        "required": ["version", "data"],
         "title": "ProjectSettings",
         "type": "object"
       },
@@ -2468,10 +2245,7 @@
             "$ref": "#/components/schemas/ConversationPagination"
           }
         },
-        "required": [
-          "conversations",
-          "pagination"
-        ],
+        "required": ["conversations", "pagination"],
         "title": "UnifiedConversationListResponse",
         "type": "object"
       },
@@ -2490,11 +2264,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "challenge_required",
-          "challenge_id",
-          "email_hint"
-        ],
+        "required": ["challenge_required", "challenge_id", "email_hint"],
         "title": "AuthSessionChallengeResponse",
         "type": "object"
       },
@@ -2503,12 +2273,7 @@
         "properties": {
           "provider": {
             "description": "Analytics provider",
-            "enum": [
-              "none",
-              "plausible",
-              "ga4",
-              "fathom"
-            ],
+            "enum": ["none", "plausible", "ga4", "fathom"],
             "example": "none",
             "type": "string"
           },
@@ -2518,9 +2283,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "provider"
-        ],
+        "required": ["provider"],
         "title": "AnalyticsSettings",
         "type": "object"
       },
@@ -2554,10 +2317,7 @@
           },
           "response_type": {
             "description": "Whether this is a direct answer or clarifying question",
-            "enum": [
-              "answer",
-              "clarification"
-            ],
+            "enum": ["answer", "clarification"],
             "type": "string"
           },
           "sources": {
@@ -2568,12 +2328,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "conversation_id",
-          "content",
-          "response_type",
-          "sources"
-        ],
+        "required": ["conversation_id", "content", "response_type", "sources"],
         "title": "LibraryAiChatResponse",
         "type": "object"
       },
@@ -2589,11 +2344,7 @@
           },
           "color_scheme": {
             "description": "Color scheme",
-            "enum": [
-              "light",
-              "dark",
-              "toggle"
-            ],
+            "enum": ["light", "dark", "toggle"],
             "type": "string"
           },
           "custom_redirects": {
@@ -2637,9 +2388,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "VideosResponse",
         "type": "object"
       },
@@ -2711,10 +2460,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "ok",
-          "session_id"
-        ],
+        "required": ["ok", "session_id"],
         "title": "AdminRevokeAuthSessionResponse",
         "type": "object"
       },
@@ -2730,15 +2476,11 @@
                 "type": "boolean"
               }
             },
-            "required": [
-              "enabled"
-            ],
+            "required": ["enabled"],
             "type": "object"
           }
         },
-        "required": [
-          "memory"
-        ],
+        "required": ["memory"],
         "title": "ViewerMemoryUpdate",
         "type": "object"
       },
@@ -2813,9 +2555,7 @@
             "$ref": "#/components/schemas/SessionManagementViewerState"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "SessionManagementViewerResolveResponse",
         "type": "object"
       },
@@ -2842,10 +2582,7 @@
                   "type": "string"
                 },
                 "role": {
-                  "enum": [
-                    "user",
-                    "assistant"
-                  ],
+                  "enum": ["user", "assistant"],
                   "type": "string"
                 },
                 "sources": {
@@ -2890,10 +2627,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "ok",
-          "session_id"
-        ],
+        "required": ["ok", "session_id"],
         "title": "RevokeAuthSessionResponse",
         "type": "object"
       },
@@ -2934,11 +2668,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "conversation_id",
-          "content",
-          "video_id"
-        ],
+        "required": ["conversation_id", "content", "video_id"],
         "title": "AiChatResponse",
         "type": "object"
       },
@@ -3040,9 +2770,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "AiChatRequest",
         "type": "object"
       },
@@ -3058,10 +2786,7 @@
             "$ref": "#/components/schemas/SessionManagementViewerState"
           }
         },
-        "required": [
-          "viewer",
-          "data"
-        ],
+        "required": ["viewer", "data"],
         "title": "SessionManagementViewerSessionsResponse",
         "type": "object"
       },
@@ -3084,11 +2809,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "path",
-          "url",
-          "permanent"
-        ],
+        "required": ["path", "url", "permanent"],
         "title": "CustomRedirect",
         "type": "object"
       },
@@ -3099,9 +2820,7 @@
             "$ref": "#/components/schemas/Playlist"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "PlaylistResponse",
         "type": "object"
       },
@@ -3114,10 +2833,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "ok",
-          "revoked_count"
-        ],
+        "required": ["ok", "revoked_count"],
         "title": "SessionManagementRevokeAllResponse",
         "type": "object"
       },
@@ -3176,9 +2892,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "ViewerCreate",
         "type": "object"
       },
@@ -3191,9 +2905,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "AdminViewerSessionsResponse",
         "type": "object"
       },
@@ -3216,11 +2928,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "content",
-          "sources",
-          "query"
-        ],
+        "required": ["content", "sources", "query"],
         "title": "AiSearchResponse",
         "type": "object"
       },
@@ -3287,11 +2995,7 @@
         "properties": {
           "color_scheme": {
             "description": "Color scheme preference",
-            "enum": [
-              "light",
-              "dark",
-              "toggle"
-            ],
+            "enum": ["light", "dark", "toggle"],
             "type": "string"
           },
           "dark": {
@@ -3330,10 +3034,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "title": "CommunityAuthor",
         "type": "object"
       },
@@ -3358,9 +3059,7 @@
             "$ref": "#/components/schemas/Progress"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "ProgressResponse",
         "type": "object"
       },
@@ -3379,11 +3078,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "video_id",
-          "conversations",
-          "pagination"
-        ],
+        "required": ["video_id", "conversations", "pagination"],
         "title": "VideoConversationListResponse",
         "type": "object"
       },
@@ -3392,9 +3087,7 @@
         "properties": {
           "type": {
             "description": "Image type",
-            "enum": [
-              "url"
-            ],
+            "enum": ["url"],
             "type": "string"
           },
           "url": {
@@ -3402,10 +3095,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "type",
-          "url"
-        ],
+        "required": ["type", "url"],
         "title": "AiImageUrl",
         "type": "object"
       },
@@ -3416,9 +3106,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "exempt"
-        ],
+        "required": ["exempt"],
         "title": "AdminSessionManagementExemptionRequest",
         "type": "object"
       },
@@ -3429,9 +3117,7 @@
             "$ref": "#/components/schemas/CommunityComment"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CommunityCommentResponse",
         "type": "object"
       },
@@ -3440,17 +3126,12 @@
         "properties": {
           "type": {
             "description": "Hero section type",
-            "enum": [
-              "none",
-              "custom"
-            ],
+            "enum": ["none", "custom"],
             "example": "none",
             "type": "string"
           }
         },
-        "required": [
-          "type"
-        ],
+        "required": ["type"],
         "title": "HeroSettings",
         "type": "object"
       },
@@ -3566,19 +3247,11 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "page",
-              "page_size",
-              "total_entries",
-              "total_pages"
-            ],
+            "required": ["page", "page_size", "total_entries", "total_pages"],
             "type": "object"
           }
         },
-        "required": [
-          "data",
-          "meta"
-        ],
+        "required": ["data", "meta"],
         "title": "CommunityPostsResponse",
         "type": "object"
       },
@@ -3610,16 +3283,11 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "current_time",
-              "duration"
-            ],
+            "required": ["current_time", "duration"],
             "type": "object"
           }
         },
-        "required": [
-          "progress"
-        ],
+        "required": ["progress"],
         "title": "ProgressUpsert",
         "type": "object"
       },
@@ -3639,11 +3307,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "error",
-          "status",
-          "timestamp"
-        ],
+        "required": ["error", "status", "timestamp"],
         "title": "ApiAuthErrorResponse",
         "type": "object"
       },
@@ -3712,9 +3376,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "AiSearchRequest",
         "type": "object"
       },
@@ -3737,10 +3399,7 @@
                   "type": "string"
                 },
                 "role": {
-                  "enum": [
-                    "user",
-                    "assistant"
-                  ],
+                  "enum": ["user", "assistant"],
                   "type": "string"
                 }
               },
@@ -3753,10 +3412,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "conversation_id",
-          "messages"
-        ],
+        "required": ["conversation_id", "messages"],
         "title": "ConversationResponse",
         "type": "object"
       },
@@ -3800,9 +3456,7 @@
                 "type": "boolean"
               }
             },
-            "required": [
-              "count"
-            ],
+            "required": ["count"],
             "type": "object"
           },
           "replies": {
@@ -3841,11 +3495,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "limit",
-          "offset",
-          "has_more"
-        ],
+        "required": ["limit", "offset", "has_more"],
         "title": "ConversationPagination",
         "type": "object"
       },
@@ -3865,16 +3515,11 @@
                 "type": "string"
               }
             },
-            "required": [
-              "viewer_id",
-              "session_management_exempt"
-            ],
+            "required": ["viewer_id", "session_management_exempt"],
             "type": "object"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "AdminSessionManagementExemptionResponse",
         "type": "object"
       },
@@ -3888,10 +3533,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "ok",
-          "session_id"
-        ],
+        "required": ["ok", "session_id"],
         "title": "SessionManagementRevokeSessionResponse",
         "type": "object"
       },
@@ -3917,10 +3559,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "title"
-        ],
+        "required": ["id", "title"],
         "title": "ConversationVideoContext",
         "type": "object"
       },
@@ -3973,10 +3612,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "data",
-          "meta"
-        ],
+        "required": ["data", "meta"],
         "title": "ProgressListResponse",
         "type": "object"
       },
@@ -4018,11 +3654,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "content",
-          "enabled",
-          "conversations_count"
-        ],
+        "required": ["content", "enabled", "conversations_count"],
         "title": "ViewerMemory",
         "type": "object"
       },
@@ -4050,10 +3682,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "title": "Error",
         "type": "object"
       },
@@ -4084,9 +3713,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "AdminViewerResolveResponse",
         "type": "object"
       },
@@ -4101,9 +3728,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "title": "CollectionsResponse",
         "type": "object"
       },
@@ -4118,10 +3743,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "error",
-          "details"
-        ],
+        "required": ["error", "details"],
         "title": "SearchErrorResponse",
         "type": "object"
       }
@@ -4247,9 +3869,7 @@
           }
         ],
         "summary": "Verify an auth challenge code",
-        "tags": [
-          "Auth Challenges"
-        ]
+        "tags": ["Auth Challenges"]
       }
     },
     "/api/v1/settings": {
@@ -4291,9 +3911,7 @@
           }
         },
         "summary": "Get portal settings",
-        "tags": [
-          "Settings"
-        ]
+        "tags": ["Settings"]
       }
     },
     "/api/v1/viewers/{viewer_id}/progress": {
@@ -4373,9 +3991,7 @@
           }
         },
         "summary": "List viewer progress",
-        "tags": [
-          "Progress"
-        ]
+        "tags": ["Progress"]
       }
     },
     "/api/v1/playlists/{id}": {
@@ -4437,9 +4053,7 @@
           }
         },
         "summary": "Get a playlist",
-        "tags": [
-          "Playlists"
-        ]
+        "tags": ["Playlists"]
       }
     },
     "/api/v1/viewers/{viewer_id}/progress/{video_id}": {
@@ -4506,9 +4120,7 @@
           }
         },
         "summary": "Reset progress",
-        "tags": [
-          "Progress"
-        ]
+        "tags": ["Progress"]
       },
       "get": {
         "callbacks": {},
@@ -4577,9 +4189,7 @@
           }
         },
         "summary": "Get progress for a video",
-        "tags": [
-          "Progress"
-        ]
+        "tags": ["Progress"]
       },
       "post": {
         "callbacks": {},
@@ -4689,9 +4299,7 @@
           }
         },
         "summary": "Create or update progress",
-        "tags": [
-          "Progress"
-        ]
+        "tags": ["Progress"]
       }
     },
     "/api/v1/viewers/{viewer_id}/progress/{video_id}/complete": {
@@ -4772,9 +4380,7 @@
           }
         },
         "summary": "Mark video as complete",
-        "tags": [
-          "Progress"
-        ]
+        "tags": ["Progress"]
       }
     },
     "/api/v1/auth/sessions/revoke-others": {
@@ -4859,9 +4465,7 @@
           }
         ],
         "summary": "Revoke all of the authenticated viewer's sessions except the current one",
-        "tags": [
-          "Auth Sessions"
-        ]
+        "tags": ["Auth Sessions"]
       }
     },
     "/api/v1/videos/latest": {
@@ -4954,9 +4558,7 @@
           }
         },
         "summary": "Get latest videos",
-        "tags": [
-          "Videos"
-        ]
+        "tags": ["Videos"]
       }
     },
     "/api/v1/community/posts/{id}": {
@@ -5023,9 +4625,7 @@
           }
         },
         "summary": "Delete a community post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       },
       "get": {
         "callbacks": {},
@@ -5094,9 +4694,7 @@
           }
         },
         "summary": "Get a community post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       },
       "patch": {
         "callbacks": {},
@@ -5196,9 +4794,7 @@
           }
         },
         "summary": "Update a community post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       },
       "put": {
         "callbacks": {},
@@ -5298,9 +4894,7 @@
           }
         },
         "summary": "Update a community post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/community/comments/{id}": {
@@ -5367,9 +4961,7 @@
           }
         },
         "summary": "Delete a comment",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}": {
@@ -5455,9 +5047,7 @@
           }
         ],
         "summary": "Resolve an upstream user ID to a BOLD viewer",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/auth/challenges/{id}/resend": {
@@ -5573,9 +5163,7 @@
           }
         ],
         "summary": "Resend an auth challenge code",
-        "tags": [
-          "Auth Challenges"
-        ]
+        "tags": ["Auth Challenges"]
       }
     },
     "/api/v1/community/posts": {
@@ -5657,9 +5245,7 @@
           }
         },
         "summary": "List community posts",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       },
       "post": {
         "callbacks": {},
@@ -5740,9 +5326,7 @@
           }
         },
         "summary": "Create a community post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/community/posts/{id}/react": {
@@ -5813,9 +5397,7 @@
           }
         },
         "summary": "Toggle reaction on a post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/collections/{id}": {
@@ -5886,9 +5468,7 @@
           }
         },
         "summary": "Get a collection",
-        "tags": [
-          "Collections"
-        ]
+        "tags": ["Collections"]
       }
     },
     "/api/v1/admin/viewers/{viewer_id}/session-management-exemption": {
@@ -5986,9 +5566,7 @@
           }
         ],
         "summary": "Set or clear a viewer's session-management exemption",
-        "tags": [
-          "Admin Viewers"
-        ]
+        "tags": ["Admin Viewers"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}/sessions/revoke-all": {
@@ -6084,9 +5662,7 @@
           }
         ],
         "summary": "Revoke every active session for a viewer by upstream user ID",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/ai/search": {
@@ -6139,9 +5715,7 @@
           }
         },
         "summary": "Search with AI synthesis",
-        "tags": [
-          "AI Search"
-        ]
+        "tags": ["AI Search"]
       }
     },
     "/api/v1/community/comments/{id}/react": {
@@ -6212,9 +5786,7 @@
           }
         },
         "summary": "Toggle reaction on a comment",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/ai/recommendations": {
@@ -6267,9 +5839,7 @@
           }
         },
         "summary": "Get video recommendations",
-        "tags": [
-          "AI Recommendations"
-        ]
+        "tags": ["AI Recommendations"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}/sessions": {
@@ -6355,9 +5925,7 @@
           }
         ],
         "summary": "List sessions for a viewer by upstream user ID",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/ai/videos/{id}/chat/{conversation_id}": {
@@ -6434,9 +6002,7 @@
           }
         },
         "summary": "Delete a video chat conversation",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "get": {
         "callbacks": {},
@@ -6505,9 +6071,7 @@
           }
         },
         "summary": "Get a video chat conversation",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "post": {
         "callbacks": {},
@@ -6597,9 +6161,7 @@
           }
         },
         "summary": "Continue a video chat conversation",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       }
     },
     "/api/v1/admin/viewers/{viewer_id}/sessions": {
@@ -6655,9 +6217,7 @@
           }
         ],
         "summary": "List active + last-30-days revoked sessions for a viewer",
-        "tags": [
-          "Admin Auth Sessions"
-        ]
+        "tags": ["Admin Auth Sessions"]
       }
     },
     "/api/v1/admin/viewers/{viewer_id}/sessions/revoke-all": {
@@ -6724,9 +6284,7 @@
           }
         ],
         "summary": "Admin-revoke every active session for a viewer",
-        "tags": [
-          "Admin Auth Sessions"
-        ]
+        "tags": ["Admin Auth Sessions"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}/device-limit": {
@@ -6843,9 +6401,7 @@
           }
         ],
         "summary": "Set or clear a viewer's device-limit override by upstream user ID",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/admin/viewers/by-external-id/{external_id}": {
@@ -6901,9 +6457,7 @@
           }
         ],
         "summary": "Resolve an upstream IdP user ID to a Bold viewer_id",
-        "tags": [
-          "Admin Viewers"
-        ]
+        "tags": ["Admin Viewers"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}/sessions/{id}/revoke": {
@@ -7008,9 +6562,7 @@
           }
         ],
         "summary": "Revoke a viewer session by upstream user ID",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/session-management/viewers/by-external-id/{external_id}/session-management-exemption": {
@@ -7127,9 +6679,7 @@
           }
         ],
         "summary": "Set or clear a viewer's session-management exemption by upstream user ID",
-        "tags": [
-          "Session Management"
-        ]
+        "tags": ["Session Management"]
       }
     },
     "/api/v1/auth/sessions/{id}/revoke": {
@@ -7204,9 +6754,7 @@
           }
         ],
         "summary": "Self-revoke one of the authenticated viewer's sessions",
-        "tags": [
-          "Auth Sessions"
-        ]
+        "tags": ["Auth Sessions"]
       }
     },
     "/api/v1/viewers/{viewer_id}/memory": {
@@ -7264,9 +6812,7 @@
           }
         },
         "summary": "Clear a viewer's memory",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "get": {
         "callbacks": {},
@@ -7326,9 +6872,7 @@
           }
         },
         "summary": "Get a viewer's memory",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "patch": {
         "callbacks": {},
@@ -7419,9 +6963,7 @@
           }
         },
         "summary": "Update a viewer's memory settings",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       }
     },
     "/api/v1/auth/sessions/{id}/verify": {
@@ -7486,9 +7028,7 @@
           }
         ],
         "summary": "Verify a session is still valid",
-        "tags": [
-          "Auth Sessions"
-        ]
+        "tags": ["Auth Sessions"]
       }
     },
     "/api/v1/admin/viewers/{viewer_id}/device-limit": {
@@ -7575,9 +7115,7 @@
           }
         ],
         "summary": "Set or clear a viewer's device-limit override",
-        "tags": [
-          "Admin Viewers"
-        ]
+        "tags": ["Admin Viewers"]
       }
     },
     "/api/v1/collections": {
@@ -7666,9 +7204,7 @@
           }
         },
         "summary": "List collections",
-        "tags": [
-          "Collections"
-        ]
+        "tags": ["Collections"]
       }
     },
     "/api/v1/collections/{collection_id}/videos": {
@@ -7758,9 +7294,7 @@
           }
         },
         "summary": "List videos in a collection",
-        "tags": [
-          "Collections"
-        ]
+        "tags": ["Collections"]
       }
     },
     "/api/v1/videos/{id}": {
@@ -7822,9 +7356,7 @@
           }
         },
         "summary": "Get a video",
-        "tags": [
-          "Videos"
-        ]
+        "tags": ["Videos"]
       }
     },
     "/api/v1/search": {
@@ -7963,9 +7495,7 @@
           }
         },
         "summary": "Search public video content",
-        "tags": [
-          "Search"
-        ]
+        "tags": ["Search"]
       }
     },
     "/api/v1/community/posts/{post_id}/comments": {
@@ -8067,9 +7597,7 @@
           }
         },
         "summary": "Create a comment on a post",
-        "tags": [
-          "Community"
-        ]
+        "tags": ["Community"]
       }
     },
     "/api/v1/viewers/lookup": {
@@ -8150,9 +7678,7 @@
           }
         },
         "summary": "Look up a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       }
     },
     "/api/v1/videos": {
@@ -8245,9 +7771,7 @@
           }
         },
         "summary": "List public videos",
-        "tags": [
-          "Videos"
-        ]
+        "tags": ["Videos"]
       }
     },
     "/api/v1/auth/sessions": {
@@ -8313,9 +7837,7 @@
           }
         ],
         "summary": "List active sessions for the authenticated viewer",
-        "tags": [
-          "Auth Sessions"
-        ]
+        "tags": ["Auth Sessions"]
       },
       "post": {
         "callbacks": {},
@@ -8428,9 +7950,7 @@
           }
         ],
         "summary": "Create a session for the authenticated viewer's device",
-        "tags": [
-          "Auth Sessions"
-        ]
+        "tags": ["Auth Sessions"]
       }
     },
     "/api/v1/ai/videos/{id}/chat": {
@@ -8519,9 +8039,7 @@
           }
         },
         "summary": "List video chat conversations",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "post": {
         "callbacks": {},
@@ -8602,9 +8120,7 @@
           }
         },
         "summary": "Chat about a video",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       }
     },
     "/api/v1/ai/chat/{id}": {
@@ -8662,9 +8178,7 @@
           }
         },
         "summary": "Delete a library chat conversation",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "get": {
         "callbacks": {},
@@ -8714,9 +8228,7 @@
           }
         },
         "summary": "Get conversation history",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "post": {
         "callbacks": {},
@@ -8787,9 +8299,7 @@
           }
         },
         "summary": "Continue a library chat",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       }
     },
     "/api/v1/playlists": {
@@ -8850,9 +8360,7 @@
           }
         },
         "summary": "List playlists",
-        "tags": [
-          "Playlists"
-        ]
+        "tags": ["Playlists"]
       }
     },
     "/api/v1/viewers": {
@@ -8915,9 +8423,7 @@
           }
         },
         "summary": "List viewers (paginated)",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "post": {
         "callbacks": {},
@@ -8988,9 +8494,7 @@
           }
         },
         "summary": "Create a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       }
     },
     "/api/v1/ai/conversations": {
@@ -9070,9 +8574,7 @@
           }
         },
         "summary": "List all conversations for a viewer",
-        "tags": [
-          "AI Conversations"
-        ]
+        "tags": ["AI Conversations"]
       }
     },
     "/api/v1/ai/chat": {
@@ -9142,9 +8644,7 @@
           }
         },
         "summary": "List library chat conversations",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       },
       "post": {
         "callbacks": {},
@@ -9205,9 +8705,7 @@
           }
         },
         "summary": "Chat with your video library",
-        "tags": [
-          "AI Chat"
-        ]
+        "tags": ["AI Chat"]
       }
     },
     "/api/v1/admin/viewers/{viewer_id}/sessions/{id}/revoke": {
@@ -9283,9 +8781,7 @@
           }
         ],
         "summary": "Admin-revoke a single session",
-        "tags": [
-          "Admin Auth Sessions"
-        ]
+        "tags": ["Admin Auth Sessions"]
       }
     },
     "/api/v1/viewers/{id}": {
@@ -9343,9 +8839,7 @@
           }
         },
         "summary": "Delete a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "get": {
         "callbacks": {},
@@ -9405,9 +8899,7 @@
           }
         },
         "summary": "Get a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "patch": {
         "callbacks": {},
@@ -9498,9 +8990,7 @@
           }
         },
         "summary": "Update a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       },
       "put": {
         "callbacks": {},
@@ -9591,9 +9081,7 @@
           }
         },
         "summary": "Update a viewer",
-        "tags": [
-          "Viewers"
-        ]
+        "tags": ["Viewers"]
       }
     },
     "/api/v1/admin/auth/policy": {
@@ -9630,9 +9118,7 @@
           }
         ],
         "summary": "Get the tenant's user-tunable auth policy",
-        "tags": [
-          "Admin Auth Policy"
-        ]
+        "tags": ["Admin Auth Policy"]
       },
       "put": {
         "callbacks": {},
@@ -9688,9 +9174,7 @@
           }
         ],
         "summary": "Update the tenant's user-tunable auth policy",
-        "tags": [
-          "Admin Auth Policy"
-        ]
+        "tags": ["Admin Auth Policy"]
       }
     }
   },
