@@ -1,8 +1,6 @@
-import { source } from "@/lib/source";
+import { BASE_URL, getMarkdownUrl, source } from "@/lib/source";
 
 export const revalidate = false;
-
-const BASE_URL = "https://docs.boldvideo.com";
 
 export async function GET() {
   const lines: string[] = [
@@ -22,7 +20,7 @@ export async function GET() {
     const description = page.data.description
       ? ` — ${page.data.description}`
       : "";
-    lines.push(`- [${page.data.title}](${BASE_URL}${page.url})${description}`);
+    lines.push(`- [${page.data.title}](${getMarkdownUrl(page)})${description}`);
   }
 
   return new Response(lines.join("\n"), {

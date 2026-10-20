@@ -3,8 +3,8 @@ import {
   defineDocs,
   frontmatterSchema,
   metaSchema,
-} from 'fumadocs-mdx/config';
-import { z } from 'zod';
+} from "fumadocs-mdx/config";
+import { z } from "zod";
 
 // Extended frontmatter schema with updated_at field
 const extendedFrontmatter = frontmatterSchema.extend({
@@ -13,7 +13,7 @@ const extendedFrontmatter = frontmatterSchema.extend({
 
 // See https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
-  dir: 'content/docs',
+  dir: "content/docs",
   docs: {
     schema: extendedFrontmatter,
     postprocess: {

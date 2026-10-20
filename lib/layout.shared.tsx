@@ -1,5 +1,5 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import Image from 'next/image';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import Image from "next/image";
 
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -13,14 +13,16 @@ export function baseOptions(): BaseLayoutProps {
             height={22}
             className="dark:brightness-0 dark:invert"
           />
-          <span className="text-sm font-medium text-fd-muted-foreground">Docs</span>
+          <span className="text-sm font-medium text-fd-muted-foreground">
+            Docs
+          </span>
         </div>
       ),
     },
     links: [
       {
-        text: 'boldvideo.com',
-        url: 'https://boldvideo.com',
+        text: "boldvideo.com",
+        url: "https://boldvideo.com",
         external: true,
       },
     ],
