@@ -1,0 +1,81 @@
+---
+title: Zoom
+description: Import your Zoom cloud recordings into Bold automatically
+updated_at: "2026-10-23"
+---
+
+Connect Zoom once and every cloud recording from your Zoom account arrives in your Bold library on its own: the video, the meeting chat, and the speaker names. Your weekly calls, office hours and workshops become part of the library your members ask, without anyone downloading or uploading files.
+
+## What you need
+
+- A Bold workspace on a plan that includes the Zoom integration
+- A Zoom account with **cloud recording** turned on. Recordings saved to your computer (local recordings) are not imported.
+- Permission to add apps to your Zoom account. On some company Zoom accounts, an admin has to approve the app first.
+
+## Add the app
+
+1. In Bold, open **Settings** and scroll to **Integrations**.
+2. Next to **Zoom Video Conferencing**, click **Connect to Zoom**.
+3. Sign in to Zoom if asked, review the permissions and click **Allow**.
+4. You land back in Bold Settings, which now shows **Connected to the Zoom Account of** followed by the Zoom user's name and email.
+5. Turn on importing: tick the checkbox **If activated, every completed Zoom Cloud Recording will be synced into the video library**, then click **Save**.
+
+You can also start from the [Bold Video listing](https://marketplace.zoom.us/apps/XCVVJGmSRju8-WLbzMw18A) on the Zoom App Marketplace. Sign in to Bold first; after you allow access in Zoom, you continue at step 4.
+
+<Callout>
+  One Zoom account connects to one Bold workspace. Everyone on your Bold team sees the same connection and the same imported recordings.
+</Callout>
+
+## How it works
+
+When a meeting ends and Zoom finishes processing its cloud recording, Bold imports it automatically. While Zoom is still processing, **Videos** shows the recording as incoming.
+
+Each imported recording arrives as a new video:
+
+- **Title**: the Zoom meeting topic
+- **Visibility**: **Unlisted**, so nothing is published until you decide to
+- **Tag**: `Zoom`, so you can filter imported calls in your library
+- **Video**: one layout per meeting, preferring shared screen with the speaker view, then gallery view, then active speaker
+- **Chat**: the meeting chat, shown as chat replay alongside the video
+- **Speakers**: names from Zoom's transcript are matched to the speakers in Bold's transcript. They're marked **Named from Zoom**, and you can undo any of them in the [transcript editor](/guides/transcripts-chapters).
+
+From there it's a normal Bold video: transcribed, chaptered and searchable. Review it, rename speakers if needed, and change its visibility when it's ready for members. Once it's in the library, members can get answers from it.
+
+Every cloud recording of the connected Zoom account is imported. If the same Zoom account also records meetings that don't belong in your library, delete those videos in Bold or keep them unlisted.
+
+## What Bold accesses and stores
+
+Bold asks Zoom for permission to **view your cloud recordings**, and reads the basic profile of the connecting Zoom user to show which account is connected.
+
+For each imported meeting, Bold stores:
+
+- a copy of the video recording, in your Bold library
+- the meeting chat, the speaker timeline and Zoom's transcript, kept private and used for chat replay and speaker names
+- the meeting topic, start and end time, time zone, host email and meeting ID
+
+Bold does not store meeting passcodes, and it does not import audio-only recordings or Zoom AI Companion summaries. Nothing is made public automatically. Imported videos are covered by our [privacy policy](https://www.boldvideo.com/privacy-policy).
+
+## Remove the app
+
+**Stop importing in Bold:** open **Settings → Integrations** and click **Remove** next to Zoom. Bold deletes its stored Zoom access and stops importing new recordings.
+
+**Remove Bold from your Zoom account:** in the [Zoom App Marketplace](https://marketplace.zoom.us/), sign in and go to **Manage → Added Apps**, find **Bold Video** and click **Remove**. This revokes Bold's access on Zoom's side as well.
+
+Recordings that were already imported stay in your Bold library after you remove the app. Delete them in **Videos** if you no longer want them, or email [support@boldvideo.com](mailto:support@boldvideo.com) and we'll delete all data imported from Zoom for your workspace.
+
+## Troubleshooting
+
+**A recording didn't arrive.** Check that:
+
+- the meeting was recorded to the cloud, not to your computer
+- the import checkbox under **Settings → Integrations** is ticked and saved
+- Zoom has finished processing the recording (long meetings can take a while)
+- the recording has video. Audio-only recordings are not imported.
+
+**"Zoom needs to be reconnected".** Bold shows this when its Zoom access has expired or was revoked, for example after the app was removed in Zoom. Open **Settings → Integrations** and click **Reconnect Zoom**. Imports resume for new recordings.
+
+**"Integration not available. Upgrade now."** Your plan doesn't include the Zoom integration yet. Contact us and we'll sort it out.
+
+## Getting help
+
+Email [support@boldvideo.com](mailto:support@boldvideo.com) with your workspace name and, if it's about a recording, the meeting topic and date.
