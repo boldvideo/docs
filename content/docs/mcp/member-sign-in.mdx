@@ -1,0 +1,104 @@
+---
+title: Member sign-in
+description: Only your members connect, and each one only to what they may watch
+updated_at: "2026-11-23"
+---
+
+With **Members sign in**, nobody gets an answer without signing in on your site first. Your site decides who the member is and which collections they may use. Bold never sees a password and keeps no copy of your membership rules.
+
+This needs a developer and a site of your own (a custom portal). It is one route on your server.
+
+## How it works
+
+1. A member adds your address in their assistant. The assistant sends their browser to Bold, and Bold sends it on to the **sign-in page on your site**: `https://yourdomain.com/connect?request=…`.
+2. Your site makes sure the member is signed in, then tells Bold from your server who it is and which collections they may use.
+3. Bold shows the member an **Allow** page with your name and logo. They choose **Allow** and return to the assistant.
+4. About once an hour, while the member keeps asking, Bold asks your site again. Your answer replaces the old one: a member who bought another course gets it, a member who cancelled is disconnected.
+
+## Set it up
+
+### 1. In Bold
+
+Under **Settings › Claude & ChatGPT › Who can use it**, choose **Members sign in** and enter the sign-in page on your site, for example `https://yourdomain.com/connect`. Your account needs the **Custom** portal type and a video link template under **Portal › Domain**, so that sources link to your site.
+
+Then copy two secrets into your server's environment. Neither may ever reach a browser.
+
+| Secret | Where | What it proves |
+|--------|-------|----------------|
+| **Server key** | **Settings › Developer**. Ask us for a key that may approve connections. | Your site to Bold |
+| **Signing secret** | **Settings › Claude & ChatGPT** | Bold to your site |
+
+### 2. On your site
+
+With [`@boldvideo/bold-js`](/sdk) 3.1 or later, the whole route is one call. In a Next.js app, `app/connect/route.ts`:
+
+```ts
+import { createClient } from "@boldvideo/bold-js";
+
+const bold = createClient(process.env.BOLD_CONNECT_API_KEY!);
+
+export const { GET, POST } = bold.mcp.connect({
+  signingSecret: process.env.BOLD_CONNECT_SIGNING_SECRET!,
+  // Who is signed in? Return your own member ID, or nothing.
+  viewer: async (req) => (await currentMember(req))?.id,
+  // What may this member use? Return null for "nothing".
+  access: async (memberId) => {
+    const collections = await collectionsFor(memberId);
+    return collections.length ? { answer: collections } : null;
+  },
+  // Where to send someone who is not signed in.
+  signIn: "/login",
+});
+```
+
+`currentMember` and `collectionsFor` are yours. `answer` is a list of Bold collection IDs.
+
+The member must exist in Bold as a [viewer](/sdk/viewers) whose external ID is your member ID. Create or sync the viewer before you approve the connection.
+
+### 3. Check it
+
+Add your address in Claude with a test member. **Settings › Claude & ChatGPT** shows "Your site answered" once Bold's first check has passed.
+
+## The two requests
+
+If you don't use the SDK, these are the two requests to implement.
+
+**Your site approves a connection.** After the member has signed in on `GET /connect?request=<id>`:
+
+```http
+PUT https://app.boldvideo.io/api/v1/mcp/connections/<id>
+Authorization: Bearer <server key>
+Content-Type: application/json
+
+{ "viewer": "<your member ID>", "access": { "answer": ["<collection ID>"] } }
+```
+
+Bold answers `{ "continue_url": "https://…" }`. Redirect the browser there, after checking that it is HTTPS and on your MCP address.
+
+**Bold asks again.** About once an hour per connected member:
+
+```http
+POST https://yourdomain.com/connect
+Bold-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<raw body>">
+Content-Type: application/json
+
+{ "viewer_id": "<Bold viewer ID>", "external_id": "<your member ID>" }
+```
+
+Verify the signature over the raw body with the signing secret, and reject a timestamp more than five minutes off. Then answer:
+
+| Your answer | What Bold does |
+|-------------|----------------|
+| `200` with `{ "access": { "answer": [...] } }` | Uses the new list from now on |
+| `404` | Ends this member's connection. They have to connect again. |
+| Anything else | Keeps the last answer and asks again later |
+
+<Callout type="warn" title="404 means gone for good">
+  Answer `404` only when you know the member has lost access. If your membership system is down or slow, answer `500`. Otherwise an outage on your side disconnects paying members.
+</Callout>
+
+## Good to know
+
+- **Turning it off:** use the switch in Bold. Removing the secrets from your site makes every hourly check fail with `404`, which disconnects everyone.
+- **A new signing secret** takes effect at once. Update your site in the same step.
+- **Switching back to "Anyone with the address"** ends every member's connection.
