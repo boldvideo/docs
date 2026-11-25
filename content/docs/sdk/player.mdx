@@ -1,0 +1,211 @@
+---
+title: Player
+description: The Bold video player for React. Give it a video and it plays, with chapters, captions, analytics and an MP4 fallback.
+updated_at: "2026-11-25"
+---
+
+`@boldvideo/player` is the video player for your own site or app. It takes a video from the [SDK](/sdk/videos) and plays it: poster, chapters on the timeline, captions, timeline previews, signed playback. It reports playback to Bold and keeps playing from the video's MP4 if the stream cannot be loaded.
+
+```tsx
+<BoldPlayer video={video} />
+```
+
+It is a React component built on [Video.js 10](https://videojs.org), and works with React 18 and 19.
+
+## Install
+
+```bash
+npm install @boldvideo/player
+```
+
+Import the stylesheet once, in your root layout or app entry:
+
+```tsx
+import '@boldvideo/player/styles.css';
+```
+
+## Play a video
+
+Fetch the video with the SDK and hand it to the player. In Next.js this can be a server component; the player itself is a client component.
+
+```tsx title="app/watch/[id]/page.tsx"
+import { createClient } from '@boldvideo/bold-js';
+import { BoldPlayer } from '@boldvideo/player';
+
+const bold = createClient(process.env.BOLD_API_KEY!);
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { data: video } = await bold.videos.get(id);
+  return <BoldPlayer video={video} />;
+}
+```
+
+That is a complete page. The poster, chapters, captions and timeline previews come from the video.
+
+## Report playback to Bold
+
+Pass your SDK client as `bold` and the player reports load, play, pause and progress, so your [dashboard](/guides/dashboard) counts the views. There is nothing to wire up by hand.
+
+The client has to exist in the browser, so in Next.js this goes in a client component:
+
+```tsx title="components/player.tsx"
+'use client';
+
+import { createClient, type Video } from '@boldvideo/bold-js';
+import { BoldPlayer } from '@boldvideo/player';
+
+const bold = createClient(process.env.NEXT_PUBLIC_BOLD_API_KEY!);
+
+export function Player({ video }: { video: Video }) {
+  return <BoldPlayer video={video} bold={bold} />;
+}
+```
+
+Render `<Player video={video} />` from your page instead of `<BoldPlayer>`.
+
+`bold` can be any object with a `trackEvent(video, event)` method, so you can send the same events through your own endpoint instead.
+
+## Open at the minute
+
+Answers from [AI methods](/sdk/ai-methods) point at the minute something was said. `startTime` opens the video there:
+
+```tsx
+<BoldPlayer video={video} startTime={754} autoPlay />
+```
+
+Changing `startTime` later seeks, so a citation click only has to update it.
+
+To move the player from elsewhere on the page (a transcript, a chapter list), use the `ref`. It is shaped like a media element:
+
+```tsx
+'use client';
+
+import { useRef } from 'react';
+import type { Video } from '@boldvideo/bold-js';
+import { BoldPlayer, type BoldPlayerHandle } from '@boldvideo/player';
+
+export function Lesson({ video }: { video: Video }) {
+  const player = useRef<BoldPlayerHandle>(null);
+
+  return (
+    <>
+      <BoldPlayer ref={player} video={video} />
+      <button
+        onClick={() => {
+          if (player.current) player.current.currentTime = 90;
+        }}
+      >
+        Jump to 1:30
+      </button>
+    </>
+  );
+}
+```
+
+The handle has `currentTime` (read and write), `duration`, `paused`, `readyState`, `play()`, `pause()`, `addEventListener()` and `removeEventListener()`, plus `media` for the underlying `<video>`. A seek made before the video has loaded is applied once it has.
+
+## Use your settings
+
+Give the player your settings and it takes your theme's accent colour from them, and follows your choice to show or hide chapters:
+
+```tsx
+const { data: settings } = await bold.settings();
+
+<BoldPlayer video={video} settings={settings} />
+```
+
+## Branding
+
+`branding` puts a logo in the player's top right corner. It appears and disappears with the controls.
+
+| `branding` | Logo | Accent colour |
+|------------|------|---------------|
+| `"none"` (default) | None | From your settings |
+| `"account"` | Your logo, from your settings | From your settings |
+| `"bold"` | Bold's wordmark | Bold's |
+
+```tsx
+<BoldPlayer video={video} settings={settings} branding="account" />
+```
+
+## Colours and size
+
+```tsx
+<BoldPlayer
+  video={video}
+  accentColor="#e11d48"
+  showTitle
+  style={{ '--media-border-radius': '12px' } as React.CSSProperties}
+/>
+```
+
+- `accentColor` colours the progress bar and highlighted controls. It wins over your settings and the branding.
+- `showTitle` puts the video's title in the top left corner.
+- The player fills its container's width at 16:9. `className` and `style` go on its root element, which also accepts the [Video.js skin properties](https://videojs.org/docs/framework/react/guides/customize-skins) such as `--media-border-radius` and `--media-font-family`.
+- `chapters={false}` and `captions={false}` switch those off.
+
+## Astro
+
+The player is a React component, so it runs anywhere React does. In Astro, add the [React integration](https://docs.astro.build/en/guides/integrations-guide/react/) and hydrate it:
+
+```astro title="src/pages/watch/[id].astro"
+---
+import { createClient } from '@boldvideo/bold-js';
+import { BoldPlayer } from '@boldvideo/player';
+import '@boldvideo/player/styles.css';
+
+const bold = createClient(import.meta.env.BOLD_API_KEY);
+const { data: video } = await bold.videos.get(Astro.params.id);
+---
+
+<BoldPlayer client:load video={video} />
+```
+
+## When the stream fails
+
+Every Bold video has an adaptive HLS stream and one static MP4. If the stream cannot be loaded, the player continues from the MP4 at the position the viewer had reached, at the speed they had chosen, with captions still on if they were on. The viewer sees no error.
+
+You don't have to do anything for this. To know when it happens:
+
+```tsx
+<BoldPlayer
+  video={video}
+  onFallback={({ reason, resumeAt }) => {
+    console.log(`Playing the MP4 from ${resumeAt}s: ${reason}`);
+  }}
+/>
+```
+
+The player falls back when the stream's manifest, playlists or media segments fail: an error status, a dropped connection, a host that never answers, or an error page served with status 200. It does not fall back when the playback token is rejected (401 or 403), because the MP4 uses the same token. If the MP4 fails too, the player shows its error message.
+
+<Callout title="Good to know">
+  The MP4 is one fixed quality, and a session that has fallen back stays on it. iPhones before iOS 17.1 play HLS
+  natively and do not report every failure, so some failures there do not trigger the fallback.
+</Callout>
+
+Set `mp4Fallback={false}` to switch it off.
+
+## Signed playback
+
+Videos with secure playback carry `playbackToken` and `storyboardToken`. The player uses them for the stream, the timeline previews and the MP4 fallback, so a signed video needs no extra props. Tokens expire; fetch the video again for fresh ones.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `video` | `BoldPlayerVideo` | required | A video from the SDK |
+| `bold` | `{ trackEvent }` | | Your SDK client, for analytics |
+| `settings` | `BoldPlayerSettings` | | Your settings from `bold.settings()` |
+| `branding` | `"none" \| "account" \| "bold"` | `"none"` | Whose logo the player carries |
+| `accentColor` | `string` | | Colour of the progress bar and highlighted controls |
+| `showTitle` | `boolean` | `false` | Show the video's title in the top left corner |
+| `autoPlay` | `boolean` | `false` | Try to start immediately. Browsers may refuse unmuted autoplay |
+| `startTime` | `number` | | Start position in seconds. Changing it later seeks |
+| `poster` | `string` | `video.thumbnail` | Poster image |
+| `captions` | `boolean` | `true` | Offer the video's captions |
+| `chapters` | `boolean` | from settings, else `true` | Show the video's chapters on the timeline |
+| `mp4Fallback` | `boolean` | `true` | Continue from the MP4 when the stream fails |
+| `className`, `style` | | | Applied to the player's root element |
+| `onLoadedMetadata`, `onPlay`, `onPause`, `onTimeUpdate`, `onEnded` | `(event: Event) => void` | | Native media events |
+| `onFallback` | `({ reason, resumeAt }) => void` | | Called once when playback moves to the MP4 |
