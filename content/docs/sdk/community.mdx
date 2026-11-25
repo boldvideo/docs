@@ -30,9 +30,9 @@ const { data: newPost } = await bold.community.posts.create('viewer-uuid', {
 await bold.community.posts.update('viewer-uuid', 'post-id', { content: 'Updated' });
 await bold.community.posts.delete('viewer-uuid', 'post-id');
 
-// React (toggle)
-const reaction = await bold.community.posts.react('viewer-uuid', 'post-id');
-console.log(reaction.reacted, reaction.reactionsCount);
+// React (see "Reactions" below)
+const reaction = await bold.community.posts.react('viewer-uuid', 'post-id', { type: 'love' });
+console.log(reaction.reacted, reaction.reaction, reaction.reactionsCount, reaction.counts);
 ```
 
 ## Comments
@@ -52,17 +52,50 @@ await bold.community.comments.create(
 
 // Delete / react
 await bold.community.comments.delete('viewer-uuid', 'comment-id');
-await bold.community.comments.react('viewer-uuid', 'comment-id');
+await bold.community.comments.react('viewer-uuid', 'comment-id', { type: 'thanks' });
 ```
+
+## Reactions
+
+A reaction has a type, and the type is a name your app chooses: `like`, `love`, `thanks`, `mind_blown`, whatever fits your community. Bold keeps no list of reactions. It stores the name and counts it; your app decides which reactions to offer and how to draw each one (an emoji, an icon, a label).
+
+A name is a lowercase letter followed by up to 31 lowercase letters, digits or underscores. Anything else, such as an emoji or capitals, is rejected with a `422`. A reaction sent without a type is a `like`.
+
+```ts
+// Your app owns the list and how it looks
+const REACTIONS = { like: '👍', love: '❤️', thanks: '🙏' } as const;
+
+await bold.community.posts.react(viewerId, postId, { type: 'love' });
+```
+
+<Callout>
+  Requires `@boldvideo/bold-js` 3.2.0 or later. Earlier versions can only toggle a like.
+</Callout>
+
+A viewer holds one reaction per post or comment. `react` works the same on both:
+
+| Viewer has | You call | Result |
+|---|---|---|
+| nothing | `react(viewerId, id)` | a like is added |
+| nothing | `react(viewerId, id, { type: 'love' })` | love is added |
+| any reaction | `react(viewerId, id)` | it is removed |
+| love | `react(viewerId, id, { type: 'love' })` | it is removed |
+| love | `react(viewerId, id, { type: 'thanks' })` | it changes to thanks; the count stays the same |
+
+The call returns the state after the change: `reacted`, `reaction` (the viewer's type, or `null`), `reactionsCount` and `counts`.
 
 ## Reaction state
 
-Pass a `viewerId` when reading and each post/comment includes whether *that viewer* has reacted:
+Every post and comment carries a `reactions` object with the total `count` and per-type `counts`. Types with no reactions are left out, and the values add up to `count`. On posts, `reactedBy` lists up to 10 recent reactors, each with the `reaction` they left.
+
+Pass a `viewerId` when reading and each post/comment also includes *that viewer's* reaction:
 
 ```typescript
 const { data: post } = await bold.community.posts.get('post-id', 'viewer-uuid');
+console.log(post.reactions.counts);         // e.g. { like: 3, love: 2 }
+console.log(post.reactions.viewerReaction); // 'love' | null
 for (const thread of post.comments.items ?? []) {
-  console.log(thread.reactions.count, thread.reactions.viewerHasReacted);
+  console.log(thread.reactions.count, thread.reactions.counts, thread.reactions.viewerHasReacted);
 }
 ```
 
