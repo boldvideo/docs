@@ -1,0 +1,91 @@
+---
+title: Add it to an assistant
+description: How a member adds your library to Claude, ChatGPT, Perplexity, Cursor or VS Code
+updated_at: "2026-11-23"
+---
+
+A member adds your library once, by pasting its address into their assistant. No assistant offers a link that fills the address in for them yet, so every member does this one step by hand. The address is under **Settings › Claude & ChatGPT › MCP address**.
+
+In the steps below, replace `https://mcp.yourdomain.com` with your address.
+
+<Callout>
+  Assistants rename and move these menus often. If a step no longer matches, look for **Connectors**, **Apps** or **MCP** in the assistant's settings.
+</Callout>
+
+## Claude
+
+Works in Claude on the web, the desktop app and the phone apps. Add it once on the web or desktop and it is there everywhere.
+
+1. Open [claude.ai/customize/connectors](https://claude.ai/customize/connectors).
+2. Choose **Add custom connector**.
+3. Enter a name and paste the address, then choose **Add**.
+4. Choose **Connect**. If your library asks members to sign in, your site opens: sign in, then choose **Allow**.
+5. In a chat, ask a question. Claude asks once whether it may use the library.
+
+Free plans can hold one custom connector. On Team and Enterprise plans an owner adds the connector first; members then connect to it. See [Claude's guide to custom connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
+
+## ChatGPT
+
+Works in ChatGPT on the web.
+
+1. Open [chatgpt.com/plugins](https://chatgpt.com/plugins).
+2. Choose the plus button, then **Add custom MCP server**.
+3. Enter a name and paste the address.
+4. Sign in on your site if asked, then choose **Allow**.
+
+Not every ChatGPT plan can add its own MCP server. Business, Enterprise and Edu workspaces can, and an admin may have to allow it first. See [OpenAI's article](https://help.openai.com/en/articles/12584461-developer-mode-and-full-mcp-connectors-in-chatgpt) for the current list.
+
+## Perplexity
+
+1. Open the connector settings and choose **Add custom**, then **Add MCP connector**, then **Remote**.
+2. Enter a name and paste the address.
+3. Sign in on your site if asked, then choose **Allow**.
+
+In an organization, an admin has to allow members to add custom connectors. See [Perplexity's article](https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors).
+
+## Cursor
+
+Add this to `~/.cursor/mcp.json`, or use **Settings › MCP › Add new MCP server**:
+
+```json
+{
+  "mcpServers": {
+    "my-library": { "url": "https://mcp.yourdomain.com" }
+  }
+}
+```
+
+Cursor also supports [install links](https://cursor.com/docs/mcp/install-links), which add the server with one click from a web page.
+
+## VS Code
+
+Run **MCP: Add Server** from the command palette, choose **HTTP** and paste the address. Or add it to `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "my-library": { "type": "http", "url": "https://mcp.yourdomain.com" }
+  }
+}
+```
+
+## Claude Code
+
+```bash
+claude mcp add --transport http my-library https://mcp.yourdomain.com
+```
+
+## If it doesn't connect
+
+| What the member sees | What to check |
+|----------------------|---------------|
+| "Couldn't register" or "couldn't connect" right away | The address. It must be copied exactly, with `https://` and without anything added at the end. An address that has moved to your own domain no longer works at the old place. |
+| Your site opens, then a membership page | The member is signed in but has no access to connect. That is your site's rule. |
+| "This link has expired" | The sign-in took too long or the link was used twice. Start again from the assistant. |
+| It connected, but the assistant doesn't use it | Ask it by name: "Look this up in the *Your Library* connector." A clear **description** in Bold's settings also helps the assistant know when to use it. |
+
+## Tell your members
+
+A short note is enough. For example:
+
+> You can now ask Claude or ChatGPT about everything in our library. Add this address as a connector: `https://mcp.yourdomain.com`. Sign in with your usual login when asked. Steps: docs.boldvideo.com/mcp/connect

@@ -1,47 +1,52 @@
 ---
-title: Bold MCP Server
-description: "Your video library as a tool for AI agents: Claude, Cursor, and beyond"
-updated_at: "2026-07-10"
+title: Your library in Claude and ChatGPT
+description: Members ask their own AI assistant and get answers from your videos
+updated_at: "2026-11-23"
 ---
 
-<Callout type="warn" title="Draft: coming soon">
-  The Bold MCP server is in development and this page describes the intended design. Names, transport, and setup will be finalized at launch, so treat everything below as subject to change. Want early access? [Get in touch](mailto:support@boldvideo.com).
+Your members already work in Claude, ChatGPT and similar tools. Bold gives your library an address they add there once. From then on they ask their assistant a question and the answer comes from your videos, with links to the exact moment.
+
+It runs on the [Model Context Protocol](https://modelcontextprotocol.io) (MCP), an open standard, so any tool that supports MCP can connect.
+
+<Callout title="Availability">
+  This is switched on per account. If you don't see **Claude & ChatGPT** under **Settings**, [ask us](mailto:help@boldvideo.com) to turn it on.
 </Callout>
 
-The Bold MCP server exposes your video library through the [Model Context Protocol](https://modelcontextprotocol.io), so AI tools your members already use (Claude, Cursor, and whatever comes next) can search your library, pull transcripts, and answer questions grounded in your content.
+## What members get
 
-## Why this matters
+The assistant gets one tool, `bold_ask`. It answers a question from your library's transcripts and returns the sources: the video, the timestamp and a link. It is the same engine as the [AI chat](/guides/ai-features) in your portal.
 
-Your library stops being a destination people have to visit and becomes a knowledge source that follows your members into their tools. A developer can ask Cursor "how did the workshop say to structure this?" and get the answer, cited to the exact clip, without leaving their editor.
+The assistant cannot browse, download or change anything.
 
-## What the server will expose
+## Turn it on
 
-**Tools**
+1. In Bold, open **Settings** and choose **Claude & ChatGPT**.
+2. Turn the switch on.
+3. Give it a **name** (what members see when they add it, at most 30 characters) and a **description**. The description tells the assistant what your library covers and when to use it, so write it for the assistant: who the host is, which topics, what kind of questions.
+4. Copy the **MCP address**. This is what members add in their assistant.
 
-| Tool | What it does |
-|------|-------------|
-| Search | Semantic search across the library, returning clips with timestamps |
-| Ask | Question answering with citations (the same engine as [AI chat](/api/reference/ai-chat)) |
-| Get video | Metadata, chapters, and transcript for a specific video |
-| List collections / playlists | Browse the library's structure |
+Turning it off stops every connected assistant on its next question. Nobody has to connect again when you turn it back on.
 
-**Resources**: video transcripts and intelligence reports, addressable by video.
+## Who can use it
 
-## Expected setup
+| Mode | Who gets answers | From which videos |
+|------|------------------|-------------------|
+| **Anyone with the address** | Anyone who has the address | Public videos only |
+| **Members sign in** | Members who sign in on your site | The collections your site says that member may use |
 
-Configuration will follow the standard MCP remote-server pattern, authenticated with a Bold API key:
+A new library starts open. If your content is paid, set up [member sign-in](/mcp/member-sign-in) before you share the address.
 
-```json
-{
-  "mcpServers": {
-    "bold": {
-      "url": "https://mcp.boldvideo.io",
-      "headers": { "Authorization": "Bearer YOUR_API_KEY" }
-    }
-  }
-}
-```
+## Next steps
 
-## Today, without MCP
+<Cards>
+  <Card title="Add it to an assistant" href="/mcp/connect" description="Steps for Claude, ChatGPT, Perplexity, Cursor and VS Code. Send this page to your members." />
+  <Card title="Member sign-in" href="/mcp/member-sign-in" description="Only paying members connect, and only to what they bought" />
+  <Card title="Your own domain" href="/mcp/own-domain" description="mcp.yourdomain.com, with your name and icon" />
+  <Card title="Get listed" href="/mcp/directories" description="Appear in Claude's and ChatGPT's own directories" />
+</Cards>
 
-You can already give AI agents everything they need to build against Bold. See [LLM & machine-readable docs](/api/machine-readable). For end-user Q&A inside your own product, the [AI endpoints](/api/reference/ai-chat) and [SDK](/sdk/ai-methods) are production-ready now.
+## What you see
+
+- **Settings › Claude & ChatGPT** shows how many members are connected and how many questions came in over the last 30 days.
+- **People** lists the connected members.
+- **Audience Insights** shows the questions asked through assistants next to the ones asked in your portal.

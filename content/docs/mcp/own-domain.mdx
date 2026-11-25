@@ -1,0 +1,29 @@
+---
+title: Your own domain
+description: Serve your library from mcp.yourdomain.com
+updated_at: "2026-11-23"
+---
+
+By default your library's address is on Bold's domain. You can move it to your own, for example `mcp.yourdomain.com`. Members then see your name in the address and nothing of ours.
+
+Do this **before** you share the address with members. The address is part of what a member's assistant stores, so moving it later means every member adds it again.
+
+## Add one DNS record
+
+At the company where your domain's DNS is managed, add:
+
+| Type | Name | Value |
+|------|------|-------|
+| `CNAME` | `mcp` | `mcp.boldvideo.io` |
+
+Leave the TTL at its default. If your DNS provider offers a proxy or CDN for the record (Cloudflare's orange cloud, for example), turn it off for this record. Nothing else on your domain changes: your website and email keep working as before.
+
+## Tell us
+
+Once the record is in, [let us know](mailto:help@boldvideo.com) which address you chose. We check that it resolves, switch your library to it and issue the certificate. This is usually done the same day.
+
+## After the switch
+
+- Your library answers only on the new address. The old one stops working.
+- If you use [member sign-in](/mcp/member-sign-in), set the MCP address on your site to the new one (`mcpUrl` in `bold.mcp.connect`).
+- Anyone who connected on the old address adds the new one.
