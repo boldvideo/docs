@@ -45,9 +45,31 @@ That is a complete page. The poster, chapters, captions and timeline previews co
 
 ## Report playback to Bold
 
-Pass your SDK client as `bold` and the player reports load, play, pause and progress, so your [dashboard](/guides/dashboard) counts the views. There is nothing to wire up by hand.
+Pass an SDK client as `bold` and the player reports load, play, pause and progress, so your [dashboard](/guides/dashboard) counts the views. There is nothing to wire up by hand.
 
-The client has to exist in the browser, so in Next.js this goes in a client component:
+The player runs in the browser, and your API key must not. So the browser's client sends events to a route on your own site, and that route passes them to Bold with the key.
+
+The route:
+
+```ts title="app/api/bold/event/route.ts"
+export async function POST(request: Request) {
+  // Only accept events from pages on this site.
+  const origin = request.headers.get('origin');
+  if (origin && new URL(origin).host !== request.headers.get('host')) {
+    return new Response(null, { status: 403 });
+  }
+
+  await fetch('https://app.boldvideo.io/api/v1/event', {
+    method: 'POST',
+    headers: { Authorization: process.env.BOLD_API_KEY!, 'Content-Type': 'application/json' },
+    body: await request.text(),
+  }).catch(() => {});
+
+  return new Response(null, { status: 204 });
+}
+```
+
+The player, in a client component:
 
 ```tsx title="components/player.tsx"
 'use client';
@@ -55,7 +77,9 @@ The client has to exist in the browser, so in Next.js this goes in a client comp
 import { createClient, type Video } from '@boldvideo/bold-js';
 import { BoldPlayer } from '@boldvideo/player';
 
-const bold = createClient(process.env.NEXT_PUBLIC_BOLD_API_KEY!);
+// 'browser' is not a Bold credential. Events go to the route above,
+// which adds the real key on the server.
+const bold = createClient('browser', { baseURL: '/api/bold' });
 
 export function Player({ video }: { video: Video }) {
   return <BoldPlayer video={video} bold={bold} />;
@@ -64,7 +88,14 @@ export function Player({ video }: { video: Video }) {
 
 Render `<Player video={video} />` from your page instead of `<BoldPlayer>`.
 
-`bold` can be any object with a `trackEvent(video, event)` method, so you can send the same events through your own endpoint instead.
+<Callout type="warn" title="Keep your API key on the server">
+  Don't create the client in the browser with your real key, for example through a `NEXT_PUBLIC_` variable. Anything
+  in the browser bundle can be read by every visitor.
+</Callout>
+
+`bold` can be any object with a `trackEvent(video, event)` method, if you'd rather send the events yourself.
+
+The player reports playback only. Page views are still yours to send with [`trackPageView`](/sdk/analytics#trackpageviewtitle).
 
 ## Open at the minute
 
