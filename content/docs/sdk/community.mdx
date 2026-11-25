@@ -57,7 +57,20 @@ await bold.community.comments.react('viewer-uuid', 'comment-id', { type: 'thanks
 
 ## Reactions
 
-A reaction has a type: `like`, `love`, `thanks`, `insightful`, `celebrate` or `funny`. These are names, not emoji, so your app decides how to draw each one.
+A reaction has a type, and the type is a name your app chooses: `like`, `love`, `thanks`, `mind_blown`, whatever fits your community. Bold keeps no list of reactions. It stores the name and counts it; your app decides which reactions to offer and how to draw each one (an emoji, an icon, a label).
+
+A name is a lowercase letter followed by up to 31 lowercase letters, digits or underscores. Anything else, such as an emoji or capitals, is rejected with a `422`. A reaction sent without a type is a `like`.
+
+```ts
+// Your app owns the list and how it looks
+const REACTIONS = { like: '👍', love: '❤️', thanks: '🙏' } as const;
+
+await bold.community.posts.react(viewerId, postId, { type: 'love' });
+```
+
+<Callout>
+  Requires `@boldvideo/bold-js` 3.2.0 or later. Earlier versions can only toggle a like.
+</Callout>
 
 A viewer holds one reaction per post or comment. `react` works the same on both:
 
