@@ -6,6 +6,8 @@ updated_at: "2026-07-10"
 
 If you build a custom frontend, report playback events so your [dashboard](/guides/dashboard) reflects reality.
 
+Using the [Bold player](/sdk/player)? Pass it a client and it reports load, play, pause and progress for you. It does not report page views, so `trackPageView` below still applies. The `trackEvent` section is for other players.
+
 ## `trackEvent(video, event)`
 
 Pass the Bold video object and the raw player event. The SDK extracts what it needs (event type, position):
