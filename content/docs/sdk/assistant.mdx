@@ -1,0 +1,215 @@
+---
+title: Assistant
+description: A React assistant for apps built on Bold. One panel follows the viewer between pages and answers with playable, numbered sources.
+updated_at: "2026-11-26"
+---
+
+`@boldvideo/assistant` gives apps built on Bold a corner panel that follows the viewer between pages. It knows the video on screen and answers from it and the library, with numbered sources the viewer can play. It works with React 18 and 19.
+
+## Quick start in three pieces
+
+```sh
+npm install @boldvideo/assistant
+```
+
+### 1. The server route
+
+The Bold API key stays on the server. Use your app's session and access checks: `getViewer` and `mayWatch` below are your own helpers. Export both methods to enable history.
+
+```ts title="app/api/assistant/route.ts"
+// app/api/assistant/route.ts
+import { createClient } from "@boldvideo/bold-js";
+import { createAssistantHandler } from "@boldvideo/assistant/server";
+import { getViewer, mayWatch } from "@/lib/auth";
+
+const bold = createClient(process.env.BOLD_API_KEY!);
+const handler = createAssistantHandler({
+  bold,
+  async authorize(request, { focus }) {
+    const viewer = await getViewer(request);
+    if (!viewer) return new Response(null, { status: 401 });
+    if (focus && !(await mayWatch(viewer, focus.videoId))) {
+      return new Response(null, { status: 403 });
+    }
+    return { viewer: viewer.id, access: { answer: viewer.collectionIds } };
+  },
+});
+export const POST = handler;
+export const GET = handler;
+```
+
+### 2. The app shell
+
+Keep the provider above changing pages. This shell is a client component; fetch its settings and viewer on the server. `settings` is the object returned by `bold.settings()`. Import the stylesheet once, as below.
+
+```tsx
+"use client";
+import { useRouter } from "next/navigation";
+import { AssistantProvider, AssistantDock } from "@boldvideo/assistant";
+import type { AssistantSettings } from "@boldvideo/assistant";
+import type { ReactNode } from "react";
+import "@boldvideo/assistant/styles.css";
+
+export function Shell({ children, settings, viewerId }: {
+  children: ReactNode; settings: AssistantSettings; viewerId: string;
+}) {
+  const router = useRouter();
+  return <AssistantProvider endpoint="/api/assistant" settings={settings} viewerKey={viewerId}>
+    {children}
+    <AssistantDock navigate={router.push}
+      videoHref={(id, at) => `/watch/${encodeURIComponent(id)}?t=${at}`} />
+  </AssistantProvider>;
+}
+```
+
+`viewerKey` identifies the viewer's saved conversation. Change it when the viewer changes, and include the account when viewers can switch accounts. Changing it starts a fresh provider. Your app decides whether to show the assistant; settings do not grant access.
+
+### 3. The video page
+
+Spread the hook's props and ref onto [BoldPlayer](/sdk/player) or a native `<video>`. Read `t` from your page's URL and pass it as the player's `startTime` for sources that link to another video page.
+
+```tsx
+"use client";
+import { BoldPlayer, type BoldPlayerVideo } from "@boldvideo/player";
+import { useAssistantVideo } from "@boldvideo/assistant";
+
+export function Video({ video, startTime = 0 }: { video: BoldPlayerVideo; startTime?: number }) {
+  const player = useAssistantVideo(video);
+  return <BoldPlayer video={video} startTime={startTime} {...player.props} ref={player.ref} />;
+}
+```
+
+For asynchronous video routes, import `AssistantVideoPending` from `@boldvideo/assistant` and render `<AssistantVideoPending />` in every route loading shell and nested Suspense fallback. It keeps the previous video visible and dimmed until the next page registers. Without it, unmounting a video means leaving for the library after a 120 ms settle window. The package does not detect router loading states for you.
+
+## What the viewer sees
+
+- One button and one floating panel. It does not resize the page. On narrow screens it becomes a bottom sheet.
+- It starts closed and never opens itself. It remembers the viewer's open or closed choice per tab.
+- “Looking at this video” or “Looking at your library” says where the assistant is looking. Playback time travels with the question, not on that line.
+- A conversation stays where it was had. On another page it is hidden behind one **Continue** row. Asking there starts a new conversation; Continue keeps the old one.
+- Following a source or moving between pages while an answer streams keeps the conversation visible.
+- Between two videos, the pending marker keeps the previous video visible and dimmed until the next one registers.
+- The video title, **Key points** and **Quiz me** sit above the conversation. An empty conversation shows up to three `conversationStarters`.
+- **Explain this part** offers help after a pause; a backward seek of 3–60 seconds also produces a playback hint. The hook must first observe playback past 15 seconds.
+- Numbered sources play the cited moment. A source in the current video seeks the page's player; other videos use `videoHref` and `navigate`.
+- History lists and loads the viewer's conversations when the transport provides both operations. Reloading can restore the last completed conversation if the server stored it.
+
+`/` opens and focuses the question box unless the viewer is typing elsewhere; Escape closes it from inside. Modified source clicks, such as Ctrl-click, keep the browser's normal behavior.
+
+Use the dock's `hidden` prop on routes where it must not appear. Hiding it keeps its state; unmounting it does not.
+
+## The server route
+
+`createAssistantHandler({ bold, authorize })` returns a web-standard `(request: Request) => Promise<Response>`. The `bold` object supplies `ai.chat`, `ai.listConversations` and `ai.getConversation`; the handler does not import the SDK at runtime.
+
+- **POST** accepts `{ prompt, conversationId?, focus?: { videoId, currentTime? }, requestId? }` and streams server-sent events. SDK events pass through unchanged.
+- **GET** lists the authorized viewer's conversations. `?offset=20` loads the next page; `?conversation=id` loads one conversation.
+- **`authorize`** supplies identity and access for each request. Browser-supplied identity and access grants are ignored. For cookie authentication, enforce your app's same-origin and cross-site request forgery (CSRF) checks.
+- **`access.answer`** permits answers from collection IDs. **`access.point`** permits links without quoting. **`access.mention`** permits offer references without fetching content. Missing access fails closed with a developer error; explicit `access: {}` grants nothing.
+- **Ownership** is checked before continuing or loading a conversation, using the viewer's own list, up to 100 pages of 100 items. Other viewers' conversation IDs return 404. Looking up the detail alone is not an ownership check.
+- **Stop** aborts the transport's signal and keeps the partial answer. The handler passes cancellation to `bold.ai.chat`. Your HTTP adapter must propagate client disconnects to `Request.signal`; cancelling the response body also aborts upstream work. Late events cannot change a stopped or replaced answer.
+
+<Callout type="warn" title="Verified AI access">
+  Use a server key that can list conversations, with **Require verified AI access** off in Bold's AI settings.
+  When it is on, the handler returns `verified_ai_access_unsupported`; the panel shows the message unchanged and
+  does not try another credential. The current `load(id)` API cannot load conversations that require a video focus.
+</Callout>
+
+## Theming
+
+The provider reads the assistant's name, avatar and greeting from `settings.account.ai`, falling back to `aiName`, `aiAvatar` and `aiGreeting`. Accent colours come from `themeConfig.light.accent` and `themeConfig.dark.accent`.
+
+Set these public CSS variables on an ancestor or in `AssistantPanel.style`. Light and dark defaults follow `prefers-color-scheme`; explicit variables win. Internal `--ba-*` aliases are not customization points.
+
+| Variable | Light default | Dark default |
+| --- | --- | --- |
+| `--bold-assistant-surface` | `#fff` | `#202225` |
+| `--bold-assistant-text` | `#202124` | `#eeeef0` |
+| `--bold-assistant-muted` | `#62656b` | `#a6a9b0` |
+| `--bold-assistant-accent` | light accent below | dark accent below |
+| `--bold-assistant-accent-light` | settings, else `#335c50` | — |
+| `--bold-assistant-accent-dark` | — | settings, else `#a2c9bb` |
+| `--bold-assistant-border` | `#dedfe2` | `#414449` |
+| `--bold-assistant-radius` | `18px` | same |
+| `--bold-assistant-font` | `system-ui, sans-serif` | same |
+| `--bold-assistant-shadow` | `0 12px 48px rgb(0 0 0 / .16)` | same |
+| `--bold-assistant-z-index` | `50` | same |
+
+All default UI strings live in exported `defaultAssistantLabels`. Override any of them with the provider's `labels` prop. Some are functions, such as `found(passages, videos)` and `source(number, title, at)`.
+
+```tsx
+<AssistantProvider endpoint="/api/assistant" viewerKey="viewer"
+  labels={{ send: "Ask", stop: "Stop writing", found: (p, v) => `${p} passages · ${v} videos` }}>
+  {children}
+</AssistantProvider>
+```
+
+Server progress and error messages, video titles and starter questions are data and appear unchanged.
+
+## Build your own panel
+
+Mount this inside `AssistantProvider`, in a client component. It renders plain text answers, playable numbered passages, the Continue row, Send and Stop. Add Markdown or history when you need them.
+
+```tsx
+import { useState } from "react";
+import { useAssistant, useAssistantSources } from "@boldvideo/assistant";
+import type { ThreadMessage } from "@boldvideo/assistant/core";
+
+function Message({ message }: { message: ThreadMessage }) {
+  const { passages, sourceLink } = useAssistantSources(message, {
+    videoHref: (id, at) => `/watch/${id}?t=${at}`,
+  });
+  return <article><p>{message.content}</p>{passages.map(p => {
+    const link = sourceLink(p.citationIds[0], true);
+    return <a key={p.number} href={link.href} onClick={link.onClick}>{p.number}</a>;
+  })}</article>;
+}
+export function MyPanel() {
+  const a = useAssistant();
+  const [question, setQuestion] = useState("");
+  return <section style={a.style}>
+    <p>{a.video ? a.labels.lookingAtVideo : a.labels.lookingAtLibrary}</p>
+    {a.setAside ? <button onClick={a.continueConversation}>{a.labels.continue}</button>
+      : a.messages.map(m => <Message key={m.id} message={m} />)}
+    <form onSubmit={e => {
+      e.preventDefault(); if (a.isStreaming || a.switching) return;
+      void a.ask(question); setQuestion("");
+    }}>
+      <label>{a.labels.question}<textarea value={question} onChange={e => setQuestion(e.target.value)} /></label>
+      <button disabled={a.isStreaming || a.switching || !question.trim()}>{a.labels.send}</button>
+      {a.isStreaming && <button type="button" onClick={a.stop}>{a.labels.stop}</button>}
+    </form>
+  </section>;
+}
+```
+
+`useAssistant()` exposes the conversation, current page, history and branding; `useAssistantVideo()` connects playback; `useAssistantSources()` provides numbered passages and source links.
+
+## Testing your route
+
+Exercise the real handler without a key or network:
+
+```ts
+import { createAssistantHandler } from "@boldvideo/assistant/server";
+import { createFakeBold, syntheticAnswer } from "@boldvideo/assistant/testing";
+import { createFetchTransport } from "@boldvideo/assistant/core";
+
+const handler = createAssistantHandler({
+  bold: createFakeBold({ answer: syntheticAnswer }),
+  authorize: () => ({ viewer: "test-viewer", access: { answer: ["test-library"] } }),
+});
+const transport = createFetchTransport("https://example.test/assistant", {
+  fetch: (url, init) => handler(new Request(url, init)),
+});
+for await (const event of transport.ask({ prompt: "How do I fold the base?", requestId: "test-question" }, {
+  signal: new AbortController().signal,
+})) console.log(event.type);
+```
+
+`createFakeBold({ conversations })` seeds viewer-owned history; chat does not persist it automatically. Each seed has `viewer`, `summary` and `detail`. `createReplayTransport(events, { delayMs })` tests streaming and cancellation without the HTTP handler. `syntheticAnswer` contains four invented videos and 256 sentence citations, including nearby sentences that merge into one passage.
+
+## What is not in 0.1.0
+
+- No full-page layout, players inside source rows, voice, checkout or viewer-personalized suggestions. Build a full-page panel from the same hooks and use your app's player and navigation.
+- No purchase offers in the default panel. Public messages still include `lockedMatches`, pointers and recommendations for custom interfaces.
+- No authorization decisions for your app. The package does not change your backend or guess what a viewer can access.
