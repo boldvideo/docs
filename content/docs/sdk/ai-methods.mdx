@@ -1,10 +1,10 @@
 ---
 title: AI Methods
 description: Chat, semantic search, and recommendations, grounded in your videos
-updated_at: "2026-07-10"
+updated_at: "2026-11-26"
 ---
 
-The `ai` namespace is how your app talks to Bold's AI. Every method streams by default (see [Streaming](/sdk/streaming)) and accepts `stream: false` for plain JSON.
+The `ai` namespace is how your app talks to Bold's AI. Chat, search, and recommendations stream by default (see [Streaming](/sdk/streaming)) and accept `stream: false` for plain JSON. Conversation history methods return JSON.
 
 ## `ai.chat(options)`
 
@@ -55,10 +55,40 @@ const stream = await bold.ai.chat({
 | `collectionId` | `string` | - | Restrict context to a collection |
 | `tags` | `string[]` | - | Restrict context by tags |
 | `images` | `ImageInput[]` | - | Attach images (e.g. homework review): `File`, `Blob`, or base64 |
+| `signal` | `AbortSignal` | - | Cancel the request and response body |
 
 <Callout title="Plan availability">
   Library-wide chat (no `videoId`) is the AI Coach, available on Growth and Enterprise plans. Video-scoped chat works on every plan.
 </Callout>
+
+## Stopping an answer
+
+From `@boldvideo/bold-js` 3.3.1, pass `signal` to `chat`, `ask`, `coach`, or `search` to stop a request, in streaming or JSON mode.
+
+```typescript
+import { createClient } from '@boldvideo/bold-js';
+
+// Server only. Keep your API key out of browser code.
+const bold = createClient(process.env.BOLD_API_KEY!);
+const controller = new AbortController();
+// Call controller.abort() from your cancellation handler.
+
+try {
+  const stream = await bold.ai.chat({
+    prompt: 'Explain pricing',
+    signal: controller.signal
+  });
+  for await (const event of stream) {
+    if (event.type === 'text_delta') console.log(event.delta);
+  }
+} catch (error) {
+  if (!(error instanceof DOMException && error.name === 'AbortError')) throw error;
+}
+```
+
+`controller.abort()` rejects pending requests or reads with the platform's `AbortError`, not `AIAPIError`. Catch around both the call and the loop, as above.
+
+Leaving the `for await` loop with `break` (or returning after an event) also cancels the response body, without throwing. Use a signal to cancel before iteration starts or while a read is pending. On a server, you can pass the incoming request's `signal` to stop the upstream request when it aborts.
 
 ## `ai.search(options)`
 
@@ -79,6 +109,7 @@ for await (const event of stream) {
 | `limit` | `number` | - | Max results |
 | `collectionId` / `tags` / `videoId` | - | - | Scope the search |
 | `context` | `AIContextMessage[]` | - | Previous turns, for follow-up queries |
+| `signal` | `AbortSignal` | - | Cancel the request and response body |
 
 ## `ai.recommendations(options)`
 
@@ -116,6 +147,69 @@ for (const message of conversation.messages) {
   console.log(`${message.role}: ${message.content}`);
 }
 ```
+
+## `ai.listConversations(options)`
+
+Build a viewer's history list with their library and video conversations, newest first, within your credential's visibility. Available from `@boldvideo/bold-js` 3.3.1.
+
+Call this on your server. Derive `viewer` from your authenticated session, not a request parameter, and keep the API key out of browser code. This Next.js route uses your app's `auth()` helper; the session's user ID must be the viewer's external ID in Bold (or their Bold viewer UUID).
+
+```typescript title="app/api/conversations/route.ts"
+import { createClient } from '@boldvideo/bold-js';
+import { auth } from '@/auth'; // Your app's server-side session helper.
+
+const bold = createClient(process.env.BOLD_API_KEY!);
+
+export async function GET(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const viewer = session.user.id;
+  const requestedOffset = Number(
+    new URL(request.url).searchParams.get('offset') ?? 0
+  );
+  const offset = Number.isSafeInteger(requestedOffset) && requestedOffset >= 0
+    ? requestedOffset
+    : 0;
+  const page = await bold.ai.listConversations({ viewer, limit: 20, offset });
+  return Response.json(page);
+}
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `viewer` | `string` | required | Viewer UUID or external ID |
+| `limit` | `number` | `20` | Page size; the server clamps it to 1–100 |
+| `offset` | `number` | `0` | Number of conversations to skip; minimum 0 |
+
+Returns `ConversationList`: `{ conversations: ConversationSummary[], pagination: { limit, offset, hasMore } }`. Each summary has these fields, without the message history:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `conversationId` | `string` | ID for `ai.getConversation` or a follow-up chat |
+| `scope` | `'library' \| 'video' \| null` | Conversation scope |
+| `title`, `preview` | `string \| null` | Text for the history list |
+| `status` | `string` | Conversation status |
+| `messageCount` | `number` | Number of messages |
+| `video` | `ConversationVideo \| null` | Only populated for video-scoped conversations |
+| `createdAt`, `updatedAt` | `string` | Creation and update timestamps |
+| `channel` | `'portal' \| 'embed' \| 'api' \| 'mcp' \| 'unknown'` | Where the conversation came from |
+| `client` | `string \| null` | Client metadata |
+
+`ConversationVideo` has `id` and `title` strings, plus nullable `thumbnailUrl` and `url` strings. Response keys are camelCase; null values and the server's pagination values are preserved.
+
+While `pagination.hasMore` is true, request the next page with `?offset=` set to `pagination.offset + pagination.limit`.
+
+HTTP failures throw `AIAPIError`, with `status` and `code`:
+
+| Status | Code | Meaning |
+|--------|------|---------|
+| `400` | `viewer_required` | Supply a viewer |
+| `404` | `viewer_not_found` | The viewer was not found |
+| `403` | `feature_disabled` | AI is disabled |
+| `403` | `verified_ai_route_unsupported` | Verified AI access keys cannot use this route |
 
 ## Multi-turn without conversations
 

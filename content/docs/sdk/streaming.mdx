@@ -1,10 +1,10 @@
 ---
 title: Streaming
 description: Consuming AI event streams with async iterators
-updated_at: "2026-07-10"
+updated_at: "2026-11-26"
 ---
 
-AI methods return a stream of typed events: the SDK handles the SSE plumbing, you get an async iterator.
+Chat, search, and recommendations return a stream of typed events: the SDK handles the SSE plumbing, you get an async iterator.
 
 ## The pattern
 
@@ -43,6 +43,8 @@ for await (const event of stream) {
 }
 ```
 
+Leaving the `for await` loop early with `break` or `return` cancels the response body without throwing (the `break` statements inside the `switch` above only leave the switch). To interrupt a pending request or read, pass an `AbortSignal` to chat or search and catch `AbortError`; see [Stopping an answer](/sdk/ai-methods#stopping-an-answer).
+
 ## Event reference
 
 The `AIEvent` union, as shipped in the SDK:
@@ -66,7 +68,7 @@ Each `Segment` in `sources`/`citations` carries `videoId`, `videoTitle`, `start`
 
 ## Non-streaming mode
 
-Every AI method accepts `stream: false` and returns a single object instead:
+Chat, search, and recommendations accept `stream: false` and return a single object instead:
 
 ```typescript
 const response = await bold.ai.chat({ prompt: '…', stream: false });
