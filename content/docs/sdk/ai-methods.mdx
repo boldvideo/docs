@@ -63,7 +63,7 @@ const stream = await bold.ai.chat({
 
 ## Stopping an answer
 
-From `@boldvideo/bold-js` 3.3.0, pass `signal` to `chat`, `ask`, `coach`, or `search` to stop a request, in streaming or JSON mode.
+From `@boldvideo/bold-js` 3.3.1, pass `signal` to `chat`, `ask`, `coach`, or `search` to stop a request, in streaming or JSON mode.
 
 ```typescript
 import { createClient } from '@boldvideo/bold-js';
@@ -150,7 +150,7 @@ for (const message of conversation.messages) {
 
 ## `ai.listConversations(options)`
 
-Build a viewer's history list with their library and video conversations, newest first, within your credential's visibility. Available from `@boldvideo/bold-js` 3.3.0.
+Build a viewer's history list with their library and video conversations, newest first, within your credential's visibility. Available from `@boldvideo/bold-js` 3.3.1.
 
 Call this on your server. Derive `viewer` from your authenticated session, not a request parameter, and keep the API key out of browser code. This Next.js route uses your app's `auth()` helper; the session's user ID must be the viewer's external ID in Bold (or their Bold viewer UUID).
 
@@ -160,14 +160,20 @@ import { auth } from '@/auth'; // Your app's server-side session helper.
 
 const bold = createClient(process.env.BOLD_API_KEY!);
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return new Response('Unauthorized', { status: 401 });
   }
 
   const viewer = session.user.id;
-  const page = await bold.ai.listConversations({ viewer, limit: 20, offset: 0 });
+  const requestedOffset = Number(
+    new URL(request.url).searchParams.get('offset') ?? 0
+  );
+  const offset = Number.isSafeInteger(requestedOffset) && requestedOffset >= 0
+    ? requestedOffset
+    : 0;
+  const page = await bold.ai.listConversations({ viewer, limit: 20, offset });
   return Response.json(page);
 }
 ```
@@ -194,18 +200,7 @@ Returns `ConversationList`: `{ conversations: ConversationSummary[], pagination:
 
 `ConversationVideo` has `id` and `title` strings, plus nullable `thumbnailUrl` and `url` strings. Response keys are camelCase; null values and the server's pagination values are preserved.
 
-To fetch the next page, add this inside `GET`, before `return Response.json(page)`. Keep the same session-derived `viewer` and use the returned pagination values:
-
-```typescript
-if (page.pagination.hasMore) {
-  const nextPage = await bold.ai.listConversations({
-    viewer,
-    limit: page.pagination.limit,
-    offset: page.pagination.offset + page.pagination.limit
-  });
-  console.log(nextPage.conversations);
-}
-```
+While `pagination.hasMore` is true, request the next page with `?offset=` set to `pagination.offset + pagination.limit`.
 
 HTTP failures throw `AIAPIError`, with `status` and `code`:
 
