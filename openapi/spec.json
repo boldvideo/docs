@@ -2,6 +2,26 @@
   "components": {
     "responses": {},
     "schemas": {
+      "AdminUploadPartsRequest": {
+        "properties": {
+          "part_numbers": {
+            "example": [
+              1,
+              2,
+              3
+            ],
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "part_numbers"
+        ],
+        "title": "AdminUploadPartsRequest",
+        "type": "object"
+      },
       "AdminCommunityPostCreate": {
         "description": "Parameters for importing a community post",
         "example": {
@@ -824,6 +844,27 @@
         "title": "MentionsResponse",
         "type": "object"
       },
+      "VideoParticipantInput": {
+        "properties": {
+          "role": {
+            "default": "attendee",
+            "enum": [
+              "host",
+              "attendee"
+            ],
+            "type": "string"
+          },
+          "viewer": {
+            "description": "Bold viewer UUID or tenant external ID; must already exist",
+            "type": "string"
+          }
+        },
+        "required": [
+          "viewer"
+        ],
+        "title": "VideoParticipantInput",
+        "type": "object"
+      },
       "ChatLockedMatch": {
         "description": "Metadata only; no text excerpts, URLs, timestamps, playback data, prices or checkout links. One offer, claimed at most once per conversation.",
         "properties": {
@@ -1467,6 +1508,26 @@
         },
         "title": "ViewerUpdate",
         "type": "object"
+      },
+      "AdminUploadResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdminVideoResponse"
+          },
+          {
+            "properties": {
+              "deduplicated": {
+                "description": "Present when starting: true if the video already existed",
+                "type": "boolean"
+              },
+              "upload": {
+                "$ref": "#/components/schemas/AdminUpload"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "title": "AdminUploadResponse"
       },
       "CommunityImportAuthor": {
         "description": "Author attribution by the customer's own member id. Bold looks up a viewer\nwith this `external_id` and creates one if it has never seen them. An\nexisting viewer is **never** modified, so the remaining fields only take\neffect on creation.\n\nSend `external_id` exactly as your app sends it when it provisions a viewer\nat login — the raw member id from your identity provider, with no prefix or\nother decoration. A value that differs by so much as a prefix creates a\nsecond viewer for the same person the first time they sign in.\n\nSend `name` as well as `first_name` / `last_name`: when `name` is omitted it\nfalls back to the `external_id`, so the raw member id ends up in the\nviewer's name.\n",
@@ -2409,6 +2470,21 @@
           "prompt": "authentication setup"
         },
         "properties": {
+          "attended_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            ],
+            "description": "Admin key and viewers feature required. Viewer UUID(s) or external ID(s); restrict videos to their current roster. OR within the list; AND with other filters. Unknown viewer: 404; no attendance: no results. Does not grant private video access."
+          },
           "channel": {
             "description": "Optional analytics channel. Missing/unrecognized values become `unknown`; metadata never rejects the search.",
             "enum": [
@@ -2483,6 +2559,21 @@
               "settled"
             ],
             "type": "string"
+          },
+          "spoken_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            ],
+            "description": "Admin key and viewers feature required. Viewer UUID(s) or external ID(s); only transcript passages containing a linked speaker, including mixed passages. OR within the list; AND with other filters. Unknown viewer: 404; no linked person: no results; index not ready: 503."
           },
           "stream": {
             "default": true,
@@ -2772,6 +2863,39 @@
         "title": "VideoIngestResponse",
         "type": "object"
       },
+      "CliLoginStarted": {
+        "properties": {
+          "device_code": {
+            "description": "Secret for polling. Never show it.",
+            "type": "string"
+          },
+          "expires_in": {
+            "description": "Seconds until the login expires",
+            "type": "integer"
+          },
+          "interval": {
+            "description": "Seconds to wait between polls",
+            "type": "integer"
+          },
+          "user_code": {
+            "example": "KTRM-4XQ9",
+            "type": "string"
+          },
+          "verification_url": {
+            "example": "https://app.boldvideo.io/cli/KTRM-4XQ9",
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_code",
+          "user_code",
+          "verification_url",
+          "expires_in",
+          "interval"
+        ],
+        "title": "CliLoginStarted",
+        "type": "object"
+      },
       "VoiceSessionRequest": {
         "description": "Start a spoken conversation about one video. Bold chooses the model, voice, and instructions; they cannot be set in the request.",
         "properties": {
@@ -2832,6 +2956,39 @@
           "sdp"
         ],
         "title": "VoiceSessionRequest",
+        "type": "object"
+      },
+      "AdminUploadPartsResponse": {
+        "properties": {
+          "expires_in": {
+            "description": "Seconds the URLs stay valid",
+            "type": "integer"
+          },
+          "parts": {
+            "items": {
+              "properties": {
+                "part_number": {
+                  "type": "integer"
+                },
+                "url": {
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "part_number",
+                "url"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "expires_in",
+          "parts"
+        ],
+        "title": "AdminUploadPartsResponse",
         "type": "object"
       },
       "ActiveSessionSummary": {
@@ -3943,6 +4100,21 @@
           "access": {
             "$ref": "#/components/schemas/ChatAccess"
           },
+          "attended_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            ],
+            "description": "Admin key and viewers feature required. Viewer UUID(s) or external ID(s); restrict videos to their current roster. OR within the list; AND with other filters. Unknown viewer: 404; no attendance: no results. No private access grant. Repeat on each turn. Cannot combine with focus."
+          },
           "channel": {
             "description": "Optional caller channel for analytics. Missing or unrecognized values are recorded as `unknown` and never reject the AI request.",
             "enum": [
@@ -4011,6 +4183,21 @@
             "description": "Caller action UUID. Reuse unchanged on retries to deduplicate analytics, not model execution. Omission or an invalid UUID creates a new interaction.",
             "format": "uuid",
             "type": "string"
+          },
+          "spoken_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            ],
+            "description": "Admin key and viewers feature required. Viewer UUID(s) or external ID(s); only transcript passages containing a linked speaker, including mixed passages. Unknown viewer: 404; no linked person: no results; index not ready: 503. Repeat on each turn; history is not re-filtered. Cannot combine with focus."
           },
           "stream": {
             "default": true,
@@ -4088,6 +4275,22 @@
         "title": "NotificationPreferencesResponse",
         "type": "object"
       },
+      "VideoParticipantsRequest": {
+        "properties": {
+          "participants": {
+            "description": "Complete replacement roster. [] clears it. Identical duplicates collapse; conflicting roles are refused.",
+            "items": {
+              "$ref": "#/components/schemas/VideoParticipantInput"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "participants"
+        ],
+        "title": "VideoParticipantsRequest",
+        "type": "object"
+      },
       "ViewerResponse": {
         "description": "Response containing a single viewer",
         "properties": {
@@ -4121,6 +4324,47 @@
           "existing"
         ],
         "title": "AdminCollectionResponse",
+        "type": "object"
+      },
+      "AdminUpload": {
+        "description": "An open upload. Null when there is nothing left to send.",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "description": "The video's internal UUID",
+            "format": "uuid",
+            "type": "string"
+          },
+          "part_size": {
+            "description": "Bytes per part; the last may be smaller",
+            "type": "integer"
+          },
+          "uploaded_parts": {
+            "description": "Parts storage already holds",
+            "items": {
+              "properties": {
+                "part_number": {
+                  "type": "integer"
+                },
+                "size": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "part_number",
+                "size"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "part_size",
+          "uploaded_parts"
+        ],
+        "title": "AdminUpload",
         "type": "object"
       },
       "AdminRevokeAllResponse": {
@@ -4330,6 +4574,39 @@
         "title": "AdminCollectionRequest",
         "type": "object"
       },
+      "VideoSpeakerRequest": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "viewer": {
+                "description": "Existing member UUID or external ID; null unlinks the person in every recording while keeping names and bindings",
+                "minLength": 1,
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "viewer"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "type": "object"
+          }
+        ],
+        "title": "VideoSpeakerRequest"
+      },
       "CollectionsResponse": {
         "description": "Response containing a list of collections",
         "properties": {
@@ -4364,6 +4641,96 @@
           "pagination"
         ],
         "title": "LibraryConversationListResponse",
+        "type": "object"
+      },
+      "AnsweredConversationStarter": {
+        "description": "A newly published video that answers a question the viewer asked, returned before the starters when `viewer` is passed",
+        "properties": {
+          "at": {
+            "description": "Start of the answering moment, in seconds",
+            "example": 1814,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "chapter": {
+            "description": "The video chapter at the moment, or null",
+            "nullable": true,
+            "type": "string"
+          },
+          "conversation": {
+            "description": "The viewer's conversation the question was asked in",
+            "properties": {
+              "id": {
+                "description": "Conversation ID",
+                "format": "uuid",
+                "type": "string"
+              },
+              "title": {
+                "description": "Conversation title (model-written metadata, not card text)",
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "type": "object"
+          },
+          "kind": {
+            "description": "Marks an answered-question item; starters have no `kind`",
+            "enum": [
+              "answered"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "description": "`unanswered`: Pearl found nothing or only a weak answer when the viewer asked, so this video is the first real answer; show it prominently. `revisited`: Pearl had answered and the video covers the topic again; show it as a quiet hint. Up to three `unanswered` items come first, then at most one `revisited`.",
+            "enum": [
+              "unanswered",
+              "revisited"
+            ],
+            "type": "string"
+          },
+          "text": {
+            "description": "Fixed template quoting the video title and the viewer's first question in the conversation; no model writes it",
+            "example": "What does “Live Q&A 11.24” say about my question: “How do I taper progesterone?”?",
+            "type": "string"
+          },
+          "video": {
+            "properties": {
+              "id": {
+                "description": "Video ID",
+                "type": "string"
+              },
+              "thumbnail": {
+                "description": "Thumbnail URL",
+                "nullable": true,
+                "type": "string"
+              },
+              "title": {
+                "description": "Video title",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "thumbnail"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "kind",
+          "text",
+          "chapter",
+          "video",
+          "at",
+          "conversation",
+          "reason"
+        ],
+        "title": "AnsweredConversationStarter",
         "type": "object"
       },
       "ViewerCreate": {
@@ -4425,6 +4792,39 @@
           "name"
         ],
         "title": "ViewerCreate",
+        "type": "object"
+      },
+      "VideoParticipantsResponse": {
+        "properties": {
+          "participants": {
+            "items": {
+              "properties": {
+                "role": {
+                  "enum": [
+                    "host",
+                    "attendee"
+                  ],
+                  "nullable": true,
+                  "type": "string"
+                },
+                "viewer_id": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "viewer_id",
+                "role"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "participants"
+        ],
+        "title": "VideoParticipantsResponse",
         "type": "object"
       },
       "LibraryAiStreamSource": {
@@ -4512,6 +4912,13 @@
           "language": {
             "default": "en",
             "type": "string"
+          },
+          "participants": {
+            "description": "Optional API roster; requires viewers feature. All viewers must exist. Ignored on deduplicated replay after validation; use PUT participants to replace.",
+            "items": {
+              "$ref": "#/components/schemas/VideoParticipantInput"
+            },
+            "type": "array"
           },
           "privacy": {
             "default": "unlisted",
@@ -4863,9 +5270,16 @@
         "description": "Response containing the resolved conversation-starter pool",
         "properties": {
           "data": {
-            "description": "List of resolved conversation starters (order is deterministic but not meaningful)",
+            "description": "With `viewer`, answered-question items come first: up to three `unanswered`, then at most one `revisited`. The resolved conversation starters follow (order is deterministic but not meaningful).",
             "items": {
-              "$ref": "#/components/schemas/ConversationStarter"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ConversationStarter"
+                },
+                {
+                  "$ref": "#/components/schemas/AnsweredConversationStarter"
+                }
+              ]
             },
             "type": "array"
           }
@@ -5765,6 +6179,17 @@
         "title": "AiMessageFeedbackRequest",
         "type": "object"
       },
+      "CliLoginStartRequest": {
+        "properties": {
+          "client_name": {
+            "description": "Name of the machine asking, shown to the person approving",
+            "example": "Marcels-MacBook-Pro",
+            "type": "string"
+          }
+        },
+        "title": "CliLoginStartRequest",
+        "type": "object"
+      },
       "SessionManagementViewerResolveResponse": {
         "properties": {
           "data": {
@@ -6104,6 +6529,15 @@
             "format": "date-time",
             "type": "string"
           },
+          "focus_video": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConversationVideoContext"
+              }
+            ],
+            "description": "First user turn's focus video for library conversations. Null without first-turn focus, when the video cannot be resolved, or for video-scoped conversations. Does not change scope or conversation access.",
+            "nullable": true
+          },
           "message_count": {
             "type": "integer"
           },
@@ -6147,6 +6581,7 @@
           "scope",
           "status",
           "message_count",
+          "focus_video",
           "created_at",
           "updated_at"
         ],
@@ -6441,6 +6876,15 @@
                   "short_id"
                 ],
                 "type": "object"
+              },
+              "user": {
+                "description": "The person the key belongs to. Absent for keys not tied to a person.",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
               }
             },
             "required": [
@@ -6468,6 +6912,73 @@
           "data"
         ],
         "title": "ViewerMemoryResponse",
+        "type": "object"
+      },
+      "AdminUploadRequest": {
+        "properties": {
+          "collection_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "collection_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "type": "string"
+          },
+          "external_id": {
+            "description": "Your own ID for this file. Calling again with it returns the same video.",
+            "type": "string"
+          },
+          "filename": {
+            "example": "2026-11-20 group call.mp4",
+            "type": "string"
+          },
+          "language": {
+            "example": "en",
+            "type": "string"
+          },
+          "privacy": {
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "type": "string"
+          },
+          "published_at": {
+            "description": "Omitted or null means unpublished",
+            "format": "date-time",
+            "type": "string"
+          },
+          "size": {
+            "description": "File size in bytes",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "description": "Defaults to the file name without extension",
+            "type": "string"
+          },
+          "video_type": {
+            "description": "Video type UUID or slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "filename",
+          "size"
+        ],
+        "title": "AdminUploadRequest",
         "type": "object"
       },
       "AuthChallengeError": {
@@ -6546,6 +7057,18 @@
           "pagination"
         ],
         "title": "VideoConversationListResponse",
+        "type": "object"
+      },
+      "CliLoginCollectRequest": {
+        "properties": {
+          "device_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_code"
+        ],
+        "title": "CliLoginCollectRequest",
         "type": "object"
       },
       "AdminViewerResolveResponse": {
@@ -6834,6 +7357,57 @@
           "already_member_ids"
         ],
         "title": "AdminCollectionVideosResponse",
+        "type": "object"
+      },
+      "CliLoginCollected": {
+        "description": "`pending` until a person decides. `approved` carries one admin key per workspace, returned once.",
+        "properties": {
+          "status": {
+            "enum": [
+              "pending",
+              "approved"
+            ],
+            "type": "string"
+          },
+          "user": {
+            "properties": {
+              "email": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "workspaces": {
+            "items": {
+              "properties": {
+                "key": {
+                  "description": "Admin key (`bold_admin_…`)",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slug",
+                "name",
+                "key"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CliLoginCollected",
         "type": "object"
       },
       "McpConnectionContinuation": {
@@ -7210,6 +7784,19 @@
         "title": "AiChatRequest",
         "type": "object"
       },
+      "AdminUploadCompleteRequest": {
+        "properties": {
+          "size": {
+            "description": "File size in bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "size"
+        ],
+        "title": "AdminUploadCompleteRequest",
+        "type": "object"
+      },
       "AdminCommunityCommentCreate": {
         "description": "Parameters for importing a comment",
         "example": {
@@ -7374,6 +7961,78 @@
           "provider"
         ],
         "title": "AnalyticsSettings",
+        "type": "object"
+      },
+      "VideoSpeakersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "speakers": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "confirmed": {
+                  "type": "boolean"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "name": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "source": {
+                  "description": "Where the speaker's name came from, not how the viewer was linked",
+                  "enum": [
+                    null,
+                    "zoom",
+                    "transcript",
+                    "assemblyai",
+                    "manual"
+                  ],
+                  "nullable": true,
+                  "type": "string"
+                },
+                "talk_time_ms": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "viewer": {
+                  "additionalProperties": false,
+                  "nullable": true,
+                  "properties": {
+                    "external_id": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "external_id"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "label",
+                "name",
+                "viewer",
+                "talk_time_ms",
+                "source",
+                "confirmed"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "speakers"
+        ],
+        "title": "VideoSpeakersResponse",
         "type": "object"
       },
       "AdminImportsResponse": {
@@ -7889,7 +8548,7 @@
     },
     "securitySchemes": {
       "admin_api_token": {
-        "description": "Privileged admin key (bold_live_* with admin: true) for Mission Control and support automation. Do not put this key in customer-owned apps.",
+        "description": "Admin key (`bold_admin_*`; older ones start with `bold_live_`). Full control of the account, like being signed in to the admin. Created in Settings → Developer or by `boldvideo login`. Server-side only: never ship it in a website or app.",
         "in": "header",
         "name": "X-Bold-Admin-Api-Key",
         "type": "apiKey"
@@ -7908,7 +8567,7 @@
     }
   },
   "info": {
-    "description": "API for accessing video content, collections, playlists, and AI-powered features.\n\n## Authentication\n\nMost API endpoints require authentication via a BOLD API token. Include your token\nin the `Authorization` header as a bearer token:\n\n```\nAuthorization: Bearer YOUR_API_TOKEN\n```\n\nSession-management client endpoints under `/api/v1/auth/*` use the customer's\nupstream IdP JWT instead:\n\n```\nAuthorization: Bearer UPSTREAM_IDP_JWT\nX-Bold-Tenant-Slug: YOUR_TENANT_SLUG\n```\n\nServer-side session-management integration endpoints under\n`/api/v1/session-management/*` use the normal tenant BOLD API token. These\nendpoints are for customer-owned servers to inspect and revoke device sessions\nafter the customer app has already decided the viewer is allowed to access content.\n\nAdmin endpoints under `/api/v1/admin/*` require `X-Bold-Admin-Api-Key` and are\nreserved for Mission Control or deliberately privileged support automation.\n\n## Browser CORS\n\nPublic tenant-token APIs and `/api/v1/auth/*` accept cross-origin browser\nrequests, including preflights, without cookie credentials. Send authorization\nheaders with `credentials: \"omit\"`; wildcard origins never allow credentials.\nAdmin, server-side session-management, internal and cookie-authenticated app\nroutes do not opt into CORS. Call privileged endpoints from your server.\n",
+    "description": "API for accessing video content, collections, playlists, and AI-powered features.\n\n## Authentication\n\nMost API endpoints require authentication via a BOLD API token. Include your token\nin the `Authorization` header as a bearer token:\n\n```\nAuthorization: Bearer YOUR_API_TOKEN\n```\n\nSession-management client endpoints under `/api/v1/auth/*` use the customer's\nupstream IdP JWT instead:\n\n```\nAuthorization: Bearer UPSTREAM_IDP_JWT\nX-Bold-Tenant-Slug: YOUR_TENANT_SLUG\n```\n\nServer-side session-management integration endpoints under\n`/api/v1/session-management/*` use the normal tenant BOLD API token. These\nendpoints are for customer-owned servers to inspect and revoke device sessions\nafter the customer app has already decided the viewer is allowed to access content.\n\nAdmin endpoints under `/api/v1/admin/*` require an admin key in\n`X-Bold-Admin-Api-Key`. Create one yourself in Bold under Settings → Developer →\nAdmin keys, or sign in with the `boldvideo` CLI (`boldvideo login`). An admin key\nhas full control of the account, so keep it on your server.\n\n## Browser CORS\n\nPublic tenant-token APIs and `/api/v1/auth/*` accept cross-origin browser\nrequests, including preflights, without cookie credentials. Send authorization\nheaders with `credentials: \"omit\"`; wildcard origins never allow credentials.\nAdmin, server-side session-management, internal and cookie-authenticated app\nroutes do not opt into CORS. Call privileged endpoints from your server.\n",
     "title": "BoldAdmin API",
     "version": "1.0.0"
   },
@@ -8684,6 +9343,106 @@
         ]
       }
     },
+    "/api/v1/admin/uploads/{id}/complete": {
+      "post": {
+        "callbacks": {},
+        "description": "Send the file's size. If the stored parts add up to it, they are joined and the video goes into the same processing as any other upload; poll GET /api/v1/admin/videos/:id. If they do not, nothing changes and 422 says how many bytes arrived. Safe to repeat: completing a video that is already past uploading returns it unchanged. A completion that overlaps another for the same video gets 409 `upload_busy`: repeat it shortly.",
+        "operationId": "BoldAdminWeb.Api.Admin.UploadController.complete",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUploadCompleteRequest"
+              }
+            }
+          },
+          "description": "File size",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadResponse"
+                }
+              }
+            },
+            "description": "Video, now processing"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "No upload is open for this video (`no_upload`), or another request is completing it (`upload_busy`)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Parts missing"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Storage or processing unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Complete an upload (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
     "/api/v1/admin/collections/{id}": {
       "patch": {
         "callbacks": {},
@@ -9333,6 +10092,106 @@
         ]
       }
     },
+    "/api/v1/admin/uploads": {
+      "post": {
+        "callbacks": {},
+        "description": "Requires X-Bold-Admin-Api-Key. Takes the file's name and size and the same metadata as POST /api/v1/admin/videos (title defaults to the file name). Returns the video and an `upload` to send the bytes to: cut the file into `part_size` pieces, request URLs with POST /api/v1/admin/uploads/:id/parts, PUT each piece, then POST /api/v1/admin/uploads/:id/complete. With `external_id`, calling again returns the same video. If its upload is still open, `uploaded_parts` lists what storage already holds, so only the rest is sent; if the file is already in, `upload` is null. Two calls for one `external_id` that overlap cannot both open an upload: the later one gets 409 `upload_busy` and repeats shortly. Without `external_id` every call starts a new video; resume by ID with GET /api/v1/admin/uploads/:id.",
+        "operationId": "BoldAdminWeb.Api.Admin.VideoIngestController.upload",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUploadRequest"
+              }
+            }
+          },
+          "description": "File and metadata",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadResponse"
+                }
+              }
+            },
+            "description": "Existing video"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadResponse"
+                }
+              }
+            },
+            "description": "Video created, upload open"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewers disabled for a supplied roster"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Another request is starting this upload (`upload_busy`)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid file or metadata"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Storage unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Start or resume an upload of a local file (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
     "/api/v1/auth/challenges/{id}/verify": {
       "post": {
         "callbacks": {},
@@ -9659,7 +10518,7 @@
       },
       "post": {
         "callbacks": {},
-        "description": "Continue an existing conversation with follow-up questions.\nMCP chat credentials can continue only their connection's viewer's library conversations;\ncurrent connection grants replace body grants, and revoked/expired credentials are refused.\nVerified-access conversations require the server-only credential, resolved viewer and matching\nnormalized access/focus on every turn, even after disabling the tenant policy. Changed grants\nor focus return 409 ai_access_scope_changed; start a new conversation. current_time may change.\nSend focus on each turn to select a video, change it, or omit it to return\nto library chat. Focus answers and widened answers share this conversation;\nscope is returned on message_complete, JSON, and assistant history.\nRepeat access lists on every turn; they are never reused from a previous request.\nAccess has the same empty-list, confidence, pointers and locked-match semantics\nas the initial chat request. synthesize=false skips focus answering and both probes.\nVideo sources include a fresh playback_token for signed playback; public and non-playback sources use null.\n\nThe AI maintains context from previous messages in the conversation.\nJSON and `message_complete` include `interaction_id` and the persisted assistant\n`message_id` for feedback on answers and clarifications. Reuse a UUID `request_id`\nfor retries of the same turn. This deduplicates best-effort asynchronous\nanalytics, not model execution or responses.\nOptional channel/client metadata is outside retry identity; invalid values are\nrecorded as unknown and never reject the request.\nError responses omit internal provider and exception details.\nAnswer responses include public-safe retrieval metadata: `retrieval_mode`, `degraded`,\nand `degraded_reason`.\n\nWhen `synthesize` is false, successful retrieval returns ordered uncited evidence with\n`response_type: \"retrieval\"`. SSE uses one terminal `message_complete` event carrying that\nretrieval result. Query planning can still return a clarification response before retrieval.\n\nAnswers are finalized the same way as \"Chat with your video library\": claims\ncarrying unknown citation markers are removed, exact cited video titles become\nMarkdown links, and the terminal `answer` event is authoritative over\nconcatenated `text_delta` chunks.\n",
+        "description": "Continue an existing conversation with follow-up questions.\nspoken_by and attended_by have the same admin-only contract as the initial chat.\nRepeat them each turn; they are not persisted and history is not re-filtered.\nUnknown viewers return 404; missing/unavailable speaker index settings return 503\nbefore SSE. Combining either filter with focus returns 400, never an unfiltered answer.\nMCP chat credentials can continue only their connection's viewer's library conversations;\ncurrent connection grants replace body grants, and revoked/expired credentials are refused.\nVerified-access conversations require the server-only credential, resolved viewer and matching\nnormalized access/focus on every turn, even after disabling the tenant policy. Changed grants\nor focus return 409 ai_access_scope_changed; start a new conversation. current_time may change.\nSend focus on each turn to select a video, change it, or omit it to return\nto library chat. Focus answers and widened answers share this conversation;\nscope is returned on message_complete, JSON, and assistant history.\nRepeat access lists on every turn; they are never reused from a previous request.\nAccess has the same empty-list, confidence, pointers and locked-match semantics\nas the initial chat request. synthesize=false skips focus answering and both probes.\nVideo sources include a fresh playback_token for signed playback; public and non-playback sources use null.\n\nThe AI maintains context from previous messages in the conversation.\nJSON and `message_complete` include `interaction_id` and the persisted assistant\n`message_id` for feedback on answers and clarifications. Reuse a UUID `request_id`\nfor retries of the same turn. This deduplicates best-effort asynchronous\nanalytics, not model execution or responses.\nOptional channel/client metadata is outside retry identity; invalid values are\nrecorded as unknown and never reject the request.\nError responses omit internal provider and exception details.\nAnswer responses include public-safe retrieval metadata: `retrieval_mode`, `degraded`,\nand `degraded_reason`.\n\nWhen `synthesize` is false, successful retrieval returns ordered uncited evidence with\n`response_type: \"retrieval\"`. SSE uses one terminal `message_complete` event carrying that\nretrieval result. Query planning can still return a clarification response before retrieval.\n\nAnswers are finalized the same way as \"Chat with your video library\": claims\ncarrying unknown citation markers are removed, exact cited video titles become\nMarkdown links, and the terminal `answer` event is authoritative over\nconcatenated `text_delta` chunks.\n",
         "operationId": "BoldAdminWeb.Api.AskStreamController.continue_ask_2",
         "parameters": [
           {
@@ -9727,7 +10586,7 @@
                 }
               }
             },
-            "description": "Conversation not found"
+            "description": "Conversation or viewer not found"
           },
           "409": {
             "content": {
@@ -9747,7 +10606,7 @@
                 }
               }
             },
-            "description": "AI access policy unavailable"
+            "description": "AI access policy or person search index unavailable/not ready"
           }
         },
         "summary": "Continue a library chat",
@@ -10520,6 +11379,294 @@
         "summary": "List mentions of the current viewer",
         "tags": [
           "Community"
+        ]
+      }
+    },
+    "/api/v1/admin/uploads/{id}/parts": {
+      "post": {
+        "callbacks": {},
+        "description": "Part numbers start at 1. PUT each part's bytes to its URL with no extra headers; URLs are valid for an hour. Every part is `part_size` bytes except the last. Up to 100 part numbers per request.",
+        "operationId": "BoldAdminWeb.Api.Admin.UploadController.parts",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUploadPartsRequest"
+              }
+            }
+          },
+          "description": "Part numbers",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadPartsResponse"
+                }
+              }
+            },
+            "description": "Part URLs"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "No upload is open for this video"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid part numbers"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Storage unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Get URLs to send parts to (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
+    "/api/v1/admin/uploads/{id}": {
+      "get": {
+        "callbacks": {},
+        "description": "Returns the video and its open upload with the parts storage already holds. `upload` is null once the file is in, or when no upload is open.",
+        "operationId": "BoldAdminWeb.Api.Admin.UploadController.show",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadResponse"
+                }
+              }
+            },
+            "description": "Video and upload"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Storage unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "See where an upload stands (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
+    "/api/v1/admin/videos/{id}/speakers/{label}": {
+      "patch": {
+        "callbacks": {},
+        "description": "Supply exactly one of name or viewer. Viewer accepts an existing member UUID or external ID and requires the viewers feature, including null. Null unlinks the person from the viewer in every recording, keeping names and speaker bindings; an unnamed voice first needs a name (422 speaker_name_required). Human decisions survive automation, including later roster linking. Viewer picks use the Speakers box's link path and preserve the name's source. Name or person changes use the editor transcript rewrite and search patch; unlink needs neither. Returns the current speaker list and queues video.speakers.changed to affected videos' callback URLs, coalescing changes for five seconds with the existing signature scheme.",
+        "operationId": "BoldAdminWeb.Api.Admin.VideoSpeakersController.update",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Diarization speaker label",
+            "in": "path",
+            "name": "label",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSpeakerRequest"
+              }
+            }
+          },
+          "description": "Speaker correction",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSpeakersResponse"
+                }
+              }
+            },
+            "description": "Speakers"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewers disabled"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video or label not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript changed; retry the correction"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid correction or unknown viewer"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Correct a speaker (admin)",
+        "tags": [
+          "Admin Videos"
         ]
       }
     },
@@ -11385,10 +12532,223 @@
         ]
       }
     },
+    "/api/v1/cli/logins/token": {
+      "post": {
+        "callbacks": {},
+        "description": "Poll with the `device_code` every `interval` seconds. Returns `pending` until a\nperson decides. Once approved, returns one admin key per approved workspace;\nthe keys are created at that moment and can be collected only once.\n410 means the sign-in was refused, expired or already collected.\n",
+        "operationId": "BoldAdminWeb.Api.CliLoginController.token",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CliLoginCollectRequest"
+              }
+            }
+          },
+          "description": "Device code",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CliLoginCollected"
+                }
+              }
+            },
+            "description": "Pending or approved"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Refused, expired or already collected"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Too many requests"
+          }
+        },
+        "security": [],
+        "summary": "Collect a CLI sign-in",
+        "tags": [
+          "CLI sign-in"
+        ]
+      }
+    },
+    "/api/v1/admin/videos/{id}/participants": {
+      "get": {
+        "callbacks": {},
+        "description": "Requires an admin/server key and the viewers feature. Returns only API participants, never Zoom rows.",
+        "operationId": "BoldAdminWeb.Api.Admin.VideoParticipantsController.index",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoParticipantsResponse"
+                }
+              }
+            },
+            "description": "API roster"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewers disabled"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Read the tenant-sent video roster (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      },
+      "put": {
+        "callbacks": {},
+        "description": "Requires an admin/server key and the viewers feature. Replaces only source=api rows; Zoom rows are untouched. An empty participants array clears the API roster. Repeats are idempotent. Unknown viewers reject the whole request with details.unresolved; no viewer is created. Confirmed names are linked only when exactly one roster viewer matches, without retranscription or overriding existing identities.",
+        "operationId": "BoldAdminWeb.Api.Admin.VideoParticipantsController.update",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoParticipantsRequest"
+              }
+            }
+          },
+          "description": "Replacement API roster",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoParticipantsResponse"
+                }
+              }
+            },
+            "description": "API roster"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewers disabled"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid roster; details.unresolved lists unknown viewer values"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Replace the tenant-sent video roster (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
     "/api/v1/me": {
       "get": {
         "callbacks": {},
-        "description": "Returns the account, key kind, non-secret key short ID, and account feature flags.\nSend `Authorization: Bearer <key>` for either a tenant or admin API key; callers\ndo not need to know the kind first. Admin keys may alternatively use\n`X-Bold-Admin-Api-Key`. If both headers are present, Authorization takes precedence.\nThis endpoint accepts persisted `bold_live_` API keys, not legacy signed tokens.\nMissing, invalid, revoked, expired keys and inactive accounts return 401.\nFeature flags describe account configuration, not a grant of admin permissions;\nviewer memory requires both viewers and viewer_memory. Existing endpoints keep\ntheir authentication requirements.\n",
+        "description": "Returns the account, key kind, non-secret key short ID, and account feature flags.\nSend `Authorization: Bearer <key>` for either a tenant or admin API key; callers\ndo not need to know the kind first. Admin keys may alternatively use\n`X-Bold-Admin-Api-Key`. If both headers are present, Authorization takes precedence.\nThis endpoint accepts persisted `bold_live_` and `bold_admin_` API keys, not legacy signed tokens.\nA key that belongs to a person, such as a CLI sign-in, also returns `user`.\nMissing, invalid, revoked, expired keys and inactive accounts return 401.\nFeature flags describe account configuration, not a grant of admin permissions;\nviewer memory requires both viewers and viewer_memory. Existing endpoints keep\ntheir authentication requirements.\n",
         "operationId": "BoldAdminWeb.Api.MeController.show",
         "parameters": [],
         "responses": {
@@ -11815,7 +13175,7 @@
       },
       "post": {
         "callbacks": {},
-        "description": "Requires X-Bold-Admin-Api-Key. Direct media uses file transfer; YouTube/Vimeo video URLs use the importer. Playlists/channels require BOLD-2021 runs and return 400. Poll GET /api/v1/admin/videos/:internal_id. Omitted/null published_at means unpublished. Only explicit tags are applied, not video-type default tags. Replays do not change metadata. Dedupe uses imported_url (lowercase host, default port and fragment removed; direct URL path/query preserved), canonical YouTube video IDs, or external_id for imported_from=api. Historical public ingestion did not store source URLs, so those records need external_id for dedupe.",
+        "description": "Requires X-Bold-Admin-Api-Key. Direct media uses file transfer; YouTube/Vimeo video URLs use the importer. Playlists/channels require BOLD-2021 runs and return 400. Poll GET /api/v1/admin/videos/:internal_id. Omitted/null published_at means unpublished. Only explicit tags are applied, not video-type default tags. Replays do not change metadata. Optional participants require the viewers feature: viewer is a Bold UUID or external ID, role is host or attendee (default). Unknown viewers reject the whole call with 422 details.unresolved. Replays do not change the roster; use PUT /api/v1/admin/videos/:id/participants. Dedupe uses imported_url (lowercase host, default port and fragment removed; direct URL path/query preserved), canonical YouTube video IDs, or external_id for imported_from=api. Historical public ingestion did not store source URLs, so those records need external_id for dedupe.",
         "operationId": "BoldAdminWeb.Api.Admin.VideoIngestController.create",
         "parameters": [],
         "requestBody": {
@@ -11869,6 +13229,16 @@
               }
             },
             "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewers disabled for a supplied roster"
           },
           "422": {
             "content": {
@@ -12412,6 +13782,52 @@
         ]
       }
     },
+    "/api/v1/cli/logins": {
+      "post": {
+        "callbacks": {},
+        "description": "Called by `boldvideo login`. Needs no credential. Returns a secret `device_code`\nto poll with and a short `user_code`; open `verification_url` in a browser,\nwhere a signed-in person checks the code and approves.\n",
+        "operationId": "BoldAdminWeb.Api.CliLoginController.create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CliLoginStartRequest"
+              }
+            }
+          },
+          "description": "Sign-in request",
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CliLoginStarted"
+                }
+              }
+            },
+            "description": "Sign-in started"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Too many requests"
+          }
+        },
+        "security": [],
+        "summary": "Start a CLI sign-in",
+        "tags": [
+          "CLI sign-in"
+        ]
+      }
+    },
     "/api/v1/search": {
       "get": {
         "callbacks": {},
@@ -12626,7 +14042,7 @@
     "/api/v1/ai/conversations": {
       "get": {
         "callbacks": {},
-        "description": "Returns library conversations and video conversations whose published videos are accessible to this credential, in reverse-chronological order. Includes the starting channel and client (assistant name); client is null for ordinary/legacy conversations or when MCP is disabled. Returns 403 verified_ai_route_unsupported when verified AI access is required. Bound conversations are always excluded from unscoped lists, even after disabling the policy.",
+        "description": "Returns library conversations and video conversations whose published videos are accessible to this credential, in reverse-chronological order. Each item includes focus_video: the first user turn's focus video for library conversations, or null when absent or no longer resolvable. Focus does not change scope; video conversations keep video and have null focus_video. Existing access filtering is unchanged, including exclusion of conversations referencing inaccessible or deleted focus videos. Includes the starting channel and client (assistant name); client is null for ordinary/legacy conversations or when MCP is disabled. Returns 403 verified_ai_route_unsupported when verified AI access is required. Bound conversations are always excluded from unscoped lists, even after disabling the policy.",
         "operationId": "BoldAdminWeb.Api.ConversationsController.index",
         "parameters": [
           {
@@ -12708,7 +14124,7 @@
     "/api/v1/ai/search": {
       "post": {
         "callbacks": {},
-        "description": "Returns 403 verified_ai_route_unsupported when verified AI access is required; use library chat with access.\nSemantic search across your video library with AI-synthesized results.\n\nReturns relevant transcript segments and an AI-generated summary.\nSources include a fresh playback_token for signed videos, null for public or non-playback sources.\nFaster than full chat—use this for search experiences.\nUse `search_mode: \"preview\"` for typeahead (no capture, null interaction_id).\nSettled searches return `interaction_id` in JSON and `message_complete`.\nReuse a UUID `request_id` on retries for analytics deduplication, not response replay.\nCapture is best-effort and asynchronous; it never blocks the search response.\nOptional `channel`, `client_name`, and `client_version` identify the caller for\nanalytics. They are outside retry identity; invalid values become unknown and\nnever reject the search.\nError responses omit internal provider and exception details.\n\n**Streaming (default):** Returns SSE events:\n- `message_start`: Stream started\n- `sources`: Matching transcript segments\n- `text_delta`: Synthesis text chunk\n- `message_complete`: Complete response\n\nSet `stream=false` for a single JSON response.\n",
+        "description": "Returns 403 verified_ai_route_unsupported when verified AI access is required; use library chat with access.\nSemantic search across your video library with AI-synthesized results.\n\nAdmin API keys may send spoken_by (viewer UUID/external ID or array) to search\ntranscript passages by linked people, or attended_by to restrict videos by roster.\nThe viewers feature is required. Other keys sending either filter receive 403.\nUnknown viewers return 404; empty matches stay empty. Filters combine with AND\nand preserve all privacy restrictions. Missing speaker index settings return 503\nperson_filter_index_not_ready before streaming; unavailable settings return 503\nperson_filter_index_unavailable. No new member data is returned.\n\nReturns relevant transcript segments and an AI-generated summary.\nSources include a fresh playback_token for signed videos, null for public or non-playback sources.\nFaster than full chat—use this for search experiences.\nUse `search_mode: \"preview\"` for typeahead (no capture, null interaction_id).\nSettled searches return `interaction_id` in JSON and `message_complete`.\nReuse a UUID `request_id` on retries for analytics deduplication, not response replay.\nCapture is best-effort and asynchronous; it never blocks the search response.\nOptional `channel`, `client_name`, and `client_version` identify the caller for\nanalytics. They are outside retry identity; invalid values become unknown and\nnever reject the search.\nError responses omit internal provider and exception details.\n\n**Streaming (default):** Returns SSE events:\n- `message_start`: Stream started\n- `sources`: Matching transcript segments\n- `text_delta`: Synthesis text chunk\n- `message_complete`: Complete response\n\nSet `stream=false` for a single JSON response.\n",
         "operationId": "BoldAdminWeb.Api.AiSearchController.search",
         "parameters": [],
         "requestBody": {
@@ -12751,7 +14167,27 @@
                 }
               }
             },
-            "description": "AI not enabled"
+            "description": "AI/viewers not enabled or person filters require an admin key"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Viewer not found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Person search index not ready or unavailable"
           }
         },
         "summary": "Search with AI synthesis",
@@ -13008,7 +14444,7 @@
     "/api/v1/videos/{id}/transcript": {
       "get": {
         "callbacks": {},
-        "description": "Returns transcript content, not a download URL. Resolves UUID, hashid, or slug with\nthe same access rules as GET /api/v1/videos/:id. Admin API keys supplied as Bearer\ntokens additionally allow private slug lookup within their account.\n\nSelect txt, srt, vtt, or json with `format` (default json). The query parameter\ntakes precedence over Accept, including an otherwise unsupported Accept header.\nJSON segments use seconds and retain speaker labels when present; language comes\nfrom transcript metadata or the text track. TXT separates utterances with blank\nlines. Subtitle cues use the existing word-timed subtitle generator.\n\nMissing or empty transcripts return 404 with code transcript_not_ready.\nStorage failures return 502, not a processing response.\n",
+        "description": "Returns transcript content, not a download URL. Resolves UUID, hashid, or slug with\nthe same access rules as GET /api/v1/videos/:id: public or unlisted and published.\nAdmin API keys supplied as Bearer tokens resolve every video in their account.\n\nSelect txt, srt, vtt, or json with `format` (default json). The query parameter\ntakes precedence over Accept, including an otherwise unsupported Accept header.\nJSON segments use seconds and retain speaker labels when present; language comes\nfrom transcript metadata or the text track. TXT separates utterances with blank\nlines. Subtitle cues use the existing word-timed subtitle generator.\n\nMissing or empty transcripts return 404 with code transcript_not_ready.\nStorage failures return 502, not a processing response.\n",
         "operationId": "BoldAdminWeb.Api.VideoController.transcript",
         "parameters": [
           {
@@ -14020,6 +15456,48 @@
         ]
       }
     },
+    "/api/v1/cli/session": {
+      "delete": {
+        "callbacks": {},
+        "description": "Called by `boldvideo logout` with the key it is signed in with\n(`Authorization: Bearer`). Revokes that key. Only keys that belong to a person\ncan end themselves this way; other keys are revoked in Settings → Developer.\n",
+        "operationId": "BoldAdminWeb.Api.CliLoginController.logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Signed out"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not a personal key"
+          }
+        },
+        "security": [
+          {
+            "api_token": []
+          }
+        ],
+        "summary": "End a CLI sign-in",
+        "tags": [
+          "CLI sign-in"
+        ]
+      }
+    },
     "/api/v1/collections/{id}": {
       "get": {
         "callbacks": {},
@@ -14096,7 +15574,7 @@
     "/api/v1/conversation-starters": {
       "get": {
         "callbacks": {},
-        "description": "Resolves the conversation-starter pool for a set of collections, falling back to\nthe account-level list for any collection with none of its own. Results are\nunioned and deduped on exact text across the requested collections; each entry\nis tagged with its `source` (`collection` or `account`) and `collection_id`\n(`null` for account-sourced starters).\n\nWith no `collection_ids`, returns the account-level starters only.\n\nUnknown or non-UUID ids are silently ignored — same lenient posture as other\ncollection-scoped endpoints.\n",
+        "description": "Resolves the conversation-starter pool for a set of collections, falling back to\nthe account-level list for any collection with none of its own. Results are\nunioned and deduped on exact text across the requested collections; each entry\nis tagged with its `source` (`collection` or `account`) and `collection_id`\n(`null` for account-sourced starters).\n\nWith no `collection_ids`, returns the account-level starters only.\n\nUnknown or non-UUID ids are silently ignored — same lenient posture as other\ncollection-scoped endpoints.\n\n**Answered for you.** Pass `viewer` (Bold viewer id or your external id) to put\n`kind: \"answered\"` items before the starters: a newly published video that answers\na question this viewer asked, with the moment (`at`, in seconds), its `chapter`,\nand the viewer's own `conversation`. Each `text` quotes the viewer's first\nquestion in that conversation; no model writes it. At most one item per\nconversation. Each item's `reason` is `unanswered` (Pearl had no or only a weak\nanswer when the viewer asked; show it prominently) or `revisited` (Pearl had\nanswered; show it as a quiet hint). Up to three `unanswered` items come first,\nhighest-confidence first, then at most one `revisited` item.\n\nAnswered items are served only for public, published, ready videos published in\nthe last 14 days that belong to at least one of the requested `collection_ids`;\nwithout `collection_ids` there are none. An item disappears once the viewer's\nprogress on the video reaches the moment. None are served while the account's\n\"Answered for you\" feature is off, or when the account requires verified AI access\nand the request is not made with a verified AI access key.\n\nAn unknown `viewer` returns the same body as a request without one. Responses to\nrequests with `viewer` carry `Cache-Control: private, no-store`.\n",
         "operationId": "BoldAdminWeb.Api.ConversationStartersController.index",
         "parameters": [
           {
@@ -14112,6 +15590,15 @@
               "type": "array"
             },
             "style": "form"
+          },
+          {
+            "description": "Viewer to personalize for: a Bold viewer UUID or your external id. Adds the viewer's answered questions before the starters; unknown viewers are ignored.",
+            "in": "query",
+            "name": "viewer",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14704,7 +16191,7 @@
     "/api/v1/videos/{id}": {
       "get": {
         "callbacks": {},
-        "description": "Returns a single video by hashid, UUID, or slug.\nSigned playback includes tokenized stream/download URLs, playback_token, storyboard_token,\nand playback_token_expires_at. Public playback tokens and expiration are null.\nPlayback credentials depend on playback policy and a nonempty Mux playback ID, not video visibility.\nRe-fetch this video for fresh tokens; no refresh endpoint is needed.\n\n**Lookup order:** UUID → hashid → slug.\n",
+        "description": "Returns a single video by hashid, UUID, or slug.\nThe video must be public or unlisted and published (`published_at` not in the future).\nA private, scheduled or unpublished video returns 404 for every ID form, the same as a\nmissing one. Admin API keys supplied as Bearer tokens resolve every video in their account.\nSigned playback includes tokenized stream/download URLs, playback_token, storyboard_token,\nand playback_token_expires_at. Public playback tokens and expiration are null.\nPlayback credentials depend on playback policy and a nonempty Mux playback ID, not video visibility.\nRe-fetch this video for fresh tokens; no refresh endpoint is needed.\n\n**Lookup order:** UUID → hashid → slug.\n",
         "operationId": "BoldAdminWeb.Api.VideoController.show_2",
         "parameters": [
           {
@@ -16827,7 +18314,7 @@
       },
       "post": {
         "callbacks": {},
-        "description": "Ask questions across your entire video library.\nWhen Require verified AI access is enabled, a fresh server-only verified_ai_access key,\nresolved viewer and explicit access object are required. Viewer IDs are not entitlement proof;\nthe customer server must authorize every grant and focus. Empty access is focus-only/no library.\nConversations bind normalized grants and focus ID. Changed scope or unbound history returns\n409 ai_access_scope_changed: start a new conversation. Bound history stays protected after\ndisabling the policy. Admission errors are JSON before SSE starts. No cross-conversation memory\nis supplied to bound conversations. Existing streams may finish after policy changes.\nMCP chat credentials are accepted on this POST route and its POST continuation only.\nTheir connection supplies viewer and answer/point grants; body viewer, access, collection\nfilters and inline profile cannot override them. Mention is empty and focus is refused.\nPrivate lessons additionally require the approving key's private-video capability.\nMCP turns retain synced viewer traits and this conversation's history, but receive no\nshared viewer memory or summaries of other conversations.\nSend `focus: {video_id, current_time?}` to read that video first, then search\nthis same library pipeline on a miss, without clarification. Focus is per turn;\nomit it to drop focus. Video access uses the same credential gate as video chat.\nFocused responses include `scope` in JSON, message_complete, and stored history.\nFocus SSE adds reading/widening progress and one scope event before text.\nWith synthesize=false, focus is authorized but its LLM step is skipped.\nOptional `access` supplies per-turn answer/point/mention collection lists.\nIt is the caller's assertion, not verified viewer entitlement. Missing lists\nmean empty; empty answer skips library search, expansion and manifest loading.\nAccess overrides collection_ids and disables resource retrieval. Only answer\ncollections enter library prompts. Empty candidates or low confidence fall through to\ndata-only point/mention probes. Pointers and locked_matches follow text and\nprecede message_complete; the same arrays persist in history and JSON.\nWith synthesize=false, only answer-list evidence is returned; probes are skipped.\nConversation creation failures return a processing_failed JSON error before\nstreaming starts, including when stream=true.\nVideo sources include a fresh playback_token for signed playback; public and non-playback sources use null.\n\nThe AI searches all transcripts, finds relevant content, and synthesizes an answer with citations.\nCollection filters also restrict the library structure supplied to the AI prompts.\nFactual name lookups use exact lexical recovery across profiles and transcripts. If factual\nretrieval is empty or weak, the response describes what the search could not find rather than asserting absence.\nUse `conversation_id` from the response to ask follow-up questions.\nJSON and `message_complete` include a turn-specific `interaction_id`.\nReuse a UUID `request_id` on retries for analytics deduplication, not response replay.\nCapture is best-effort and asynchronous; the ID is not a persistence acknowledgement.\nAnswers and clarifications also include the persisted assistant `message_id` for feedback.\nOptional `channel`, `client_name`, and `client_version` are analytics metadata,\noutside retry identity. Invalid metadata becomes unknown and never rejects AI.\nError responses omit internal provider and exception details.\n\nSet `synthesize=false` to stop after retrieval and return ordered evidence with\n`response_type: \"retrieval\"`. This mode persists the user query but no assistant\nanswer. Evidence IDs are deterministic within the ranked response, not durable\ndatabase IDs. Callers that synthesize answers elsewhere must send standalone\nfollow-up prompts because those external answers are not part of Bold's history.\n\n**Streaming (default):** Returns SSE events:\n- `message_start`: Stream started\n- `conversation_created`: Conversation record created\n- `image_analysis`: Uploaded images analyzed\n- `progress`: Pipeline stage status (e.g. \"Searching your library…\")\n- `sources`: Search results found\n- `citation_map`: Stable citation map for streamed text\n- `text_delta`: Raw answer text chunk (pre-finalization, see below)\n- `answer`: Complete finalized answer with citations and public-safe retrieval metadata\n- `message_complete`: Stream finished (carries the same finalized `content`)\n\nWith `synthesize=false`, `message_complete` is the only terminal success event.\nIt contains `response_type: \"retrieval\"`, `sources`, `confidence`, and retrieval\n`metadata`; it omits answer content, citations, and synthesis usage.\n\n**Answer finalization:** `text_delta` events stream raw model tokens. The final\nanswer text is then validated: any marker-delimited claim carrying an unknown\ncitation marker is removed (fail closed), and exact titles of cited videos are\nrewritten as Markdown links to the video's canonical portal URL. The terminal `answer` event\n(and `message_complete.content`) carry this finalized text — it is authoritative\nand is what gets persisted to the conversation. Clients MUST replace their\naccumulated `text_delta` buffer with `answer.content` on receipt; the finalized\ntext can differ from the concatenated deltas.\n\nAnswer responses include public-safe retrieval metadata: `retrieval_mode`, `degraded`,\nand `degraded_reason`. When retrieval recovers after Stage 1 exhaustion,\n`retrieval_mode` is `degraded` and `degraded_reason` is `stage1_exhausted`.\n\nSet `stream=false` for a single JSON response whose `content` is the same\nfinalized answer text, with the same retrieval metadata.\n",
+        "description": "Ask questions across your entire video library.\nWhen Require verified AI access is enabled, a fresh server-only verified_ai_access key,\nresolved viewer and explicit access object are required. Viewer IDs are not entitlement proof;\nthe customer server must authorize every grant and focus. Empty access is focus-only/no library.\nConversations bind normalized grants and focus ID. Changed scope or unbound history returns\n409 ai_access_scope_changed: start a new conversation. Bound history stays protected after\ndisabling the policy. Admission errors are JSON before SSE starts. No cross-conversation memory\nis supplied to bound conversations. Existing streams may finish after policy changes.\nMCP chat credentials are accepted on this POST route and its POST continuation only.\nTheir connection supplies viewer and answer/point grants; body viewer, access, collection\nfilters and inline profile cannot override them. Mention is empty and focus is refused.\nPrivate lessons additionally require the approving key's private-video capability.\nMCP turns retain synced viewer traits and this conversation's history, but receive no\nshared viewer memory or summaries of other conversations.\nSend `focus: {video_id, current_time?}` to read that video first, then search\nthis same library pipeline on a miss, without clarification. Focus is per turn;\nomit it to drop focus. Video access uses the same credential gate as video chat.\nFocused responses include `scope` in JSON, message_complete, and stored history.\nFocus SSE adds reading/widening progress and one scope event before text.\nWith synthesize=false, focus is authorized but its LLM step is skipped.\nOptional `access` supplies per-turn answer/point/mention collection lists.\nIt is the caller's assertion, not verified viewer entitlement. Missing lists\nmean empty; empty answer skips library search, expansion and manifest loading.\nAccess overrides collection_ids and disables resource retrieval. Only answer\ncollections enter library prompts. Empty candidates or low confidence fall through to\ndata-only point/mention probes. Pointers and locked_matches follow text and\nprecede message_complete; the same arrays persist in history and JSON.\nWith synthesize=false, only answer-list evidence is returned; probes are skipped.\nConversation creation failures return a processing_failed JSON error before\nstreaming starts, including when stream=true.\nVideo sources include a fresh playback_token for signed playback; public and non-playback sources use null.\n\nThe AI searches all transcripts, finds relevant content, and synthesizes an answer with citations.\nCollection filters also restrict the library structure supplied to the AI prompts.\nAdmin keys may send spoken_by and attended_by (viewer UUID/external ID or arrays),\nrequiring the viewers feature. OR within each filter, AND between filters and existing\nrestrictions. Other keys sending either receive 403; unknown viewers return 404;\nempty linked people/rosters return no results. spoken_by searches only transcript\npassages, including mixed-speaker passages, and adds no member data to responses.\nRepeat filters each turn; history is not re-filtered. Combining either with focus\nreturns 400. Missing speaker index settings return 503 person_filter_index_not_ready\nbefore SSE; unavailable settings return 503 person_filter_index_unavailable.\nFactual name lookups use exact lexical recovery across profiles and transcripts. If factual\nretrieval is empty or weak, the response describes what the search could not find rather than asserting absence.\nUse `conversation_id` from the response to ask follow-up questions.\nJSON and `message_complete` include a turn-specific `interaction_id`.\nReuse a UUID `request_id` on retries for analytics deduplication, not response replay.\nCapture is best-effort and asynchronous; the ID is not a persistence acknowledgement.\nAnswers and clarifications also include the persisted assistant `message_id` for feedback.\nOptional `channel`, `client_name`, and `client_version` are analytics metadata,\noutside retry identity. Invalid metadata becomes unknown and never rejects AI.\nError responses omit internal provider and exception details.\n\nSet `synthesize=false` to stop after retrieval and return ordered evidence with\n`response_type: \"retrieval\"`. This mode persists the user query but no assistant\nanswer. Evidence IDs are deterministic within the ranked response, not durable\ndatabase IDs. Callers that synthesize answers elsewhere must send standalone\nfollow-up prompts because those external answers are not part of Bold's history.\n\n**Streaming (default):** Returns SSE events:\n- `message_start`: Stream started\n- `conversation_created`: Conversation record created\n- `image_analysis`: Uploaded images analyzed\n- `progress`: Pipeline stage status (e.g. \"Searching your library…\")\n- `sources`: Search results found\n- `citation_map`: Stable citation map for streamed text\n- `text_delta`: Raw answer text chunk (pre-finalization, see below)\n- `answer`: Complete finalized answer with citations and public-safe retrieval metadata\n- `message_complete`: Stream finished (carries the same finalized `content`)\n\nWith `synthesize=false`, `message_complete` is the only terminal success event.\nIt contains `response_type: \"retrieval\"`, `sources`, `confidence`, and retrieval\n`metadata`; it omits answer content, citations, and synthesis usage.\n\n**Answer finalization:** `text_delta` events stream raw model tokens. The final\nanswer text is then validated: any marker-delimited claim carrying an unknown\ncitation marker is removed (fail closed), and exact titles of cited videos are\nrewritten as Markdown links to the video's canonical portal URL. The terminal `answer` event\n(and `message_complete.content`) carry this finalized text — it is authoritative\nand is what gets persisted to the conversation. Clients MUST replace their\naccumulated `text_delta` buffer with `answer.content` on receipt; the finalized\ntext can differ from the concatenated deltas.\n\nAnswer responses include public-safe retrieval metadata: `retrieval_mode`, `degraded`,\nand `degraded_reason`. When retrieval recovers after Stage 1 exhaustion,\n`retrieval_mode` is `degraded` and `degraded_reason` is `stage1_exhausted`.\n\nSet `stream=false` for a single JSON response whose `content` is the same\nfinalized answer text, with the same retrieval metadata.\n",
         "operationId": "BoldAdminWeb.Api.AskStreamController.ask",
         "parameters": [
           {
@@ -16885,7 +18372,7 @@
                 }
               }
             },
-            "description": "AI not enabled or verified server credential required"
+            "description": "Feature disabled or required admin/verified credential missing"
           },
           "404": {
             "content": {
@@ -16895,7 +18382,7 @@
                 }
               }
             },
-            "description": "Focus video or conversation not found"
+            "description": "Focus video, conversation or viewer not found"
           },
           "409": {
             "content": {
@@ -16915,7 +18402,7 @@
                 }
               }
             },
-            "description": "AI access policy unavailable"
+            "description": "AI access policy or person search index unavailable/not ready"
           }
         },
         "summary": "Chat with your video library",
@@ -17201,6 +18688,75 @@
         ]
       }
     },
+    "/api/v1/admin/videos/{id}/speakers": {
+      "get": {
+        "callbacks": {},
+        "description": "Admin/server keys only. Accepts the internal UUID of any video owned by the tenant, including private videos. One row per transcript label; talk time is derived in milliseconds. Without the viewers feature, viewer is always null. No email, confidence or Zoom identifier is returned.",
+        "operationId": "BoldAdminWeb.Api.Admin.VideoSpeakersController.index",
+        "parameters": [
+          {
+            "description": "Video internal UUID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSpeakersResponse"
+                }
+              }
+            },
+            "description": "Speakers"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Video not found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript unavailable"
+          }
+        },
+        "security": [
+          {
+            "admin_api_token": []
+          }
+        ],
+        "summary": "Read speakers and private member links (admin)",
+        "tags": [
+          "Admin Videos"
+        ]
+      }
+    },
     "/api/v1/admin/community/posts/{id}": {
       "patch": {
         "callbacks": {},
@@ -17420,6 +18976,9 @@
       "name": "Analytics"
     },
     {
+      "name": "Admin Videos"
+    },
+    {
       "name": "Admin Collections"
     },
     {
@@ -17453,13 +19012,13 @@
       "name": "Admin Imports"
     },
     {
+      "name": "CLI sign-in"
+    },
+    {
       "name": "Identity"
     },
     {
       "name": "Session Management"
-    },
-    {
-      "name": "Admin Videos"
     },
     {
       "name": "Search"
