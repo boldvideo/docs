@@ -1,0 +1,115 @@
+---
+title: "Set up your coding agent"
+description: "One command teaches Claude Code, Codex, Cursor, Gemini CLI and Amp to run your Bold library"
+updated_at: "2026-11-28"
+---
+
+Your coding agent can run shell commands. So it can already run Bold. It just doesn't know that yet.
+
+Two things fix that:
+
+1. A **skill**: a short manual the agent loads when a job calls for it.
+2. A **pointer**: a few lines in your project's `AGENTS.md` that say the video library lives in Bold, and where to start.
+
+One command installs both. Run it in your project:
+
+```sh
+boldvideo agent setup
+```
+
+It needs `boldvideo` 0.2.0 or newer, and you should be signed in (`boldvideo login`). Start a new agent session afterwards.
+
+## Then just ask
+
+```text
+Import everything in ./recordings into Bold. Publish each video on the day it was recorded.
+```
+
+```text
+What did members ask about pricing this week? Link the moments that answer them.
+```
+
+```text
+Move our Kajabi course into Bold and keep the module order as collections.
+```
+
+The agent previews every change with `--dry-run` before it makes it. You see the plan first.
+
+## What it writes
+
+| What | Where | Read by |
+| --- | --- | --- |
+| The skill | `~/.claude/skills/boldvideo` | Claude Code |
+| The skill | `~/.agents/skills/boldvideo` | Codex, Cursor, Gemini CLI, Amp |
+| The pointer | `AGENTS.md` in the current directory | Every agent, on every turn |
+| The pointer | `CLAUDE.md`, unless it already pulls `AGENTS.md` in | Claude Code |
+
+The pointer sits between two markers:
+
+```md
+<!-- boldvideo:start -->
+## Bold
+
+This project's video library lives in Bold. Reach it with the `boldvideo` CLI:
+
+- **Import** recordings from YouTube, a URL or a local folder: `boldvideo import --help`
+- **Ask** what the videos say, with cited timestamps: `boldvideo ask`, `boldvideo search`
+- **Insights** into what members ask: `boldvideo insights questions`
+- **Manage** videos, collections and viewers: `boldvideo help --json` lists every command and flag
+
+Preview every write with `--dry-run`, then run it. `boldvideo docs cli` prints the full manual offline.
+<!-- boldvideo:end -->
+```
+
+Everything outside the markers is yours. Setup never touches it.
+
+Want to look before it writes? `boldvideo agent setup --dry-run` lists the files and changes nothing.
+
+## Why both
+
+A skill only loads when the agent decides the job needs it. If nothing tells the agent that Bold exists, it may never make that decision.
+
+The pointer is what tells it. Your agent reads `AGENTS.md` on every turn, so those few lines are always in view. That is also why the pointer is short: every line there costs attention on every turn, whether the job is about video or not.
+
+The pointer says Bold is here. The skill says how to use it well.
+
+## For a team
+
+Put the skill in the repository, so everyone who clones it gets the same setup:
+
+```sh
+boldvideo agent setup --project
+```
+
+That writes `.claude/skills/boldvideo` and `.agents/skills/boldvideo` in the project instead of your home directory. Commit them along with `AGENTS.md`.
+
+## Keeping it current
+
+The skill ships inside the CLI, so it always matches the version you have installed. After you upgrade, run setup again:
+
+```sh
+boldvideo agent setup
+```
+
+It rewrites only what changed and tells you which files those were.
+
+## Without the CLI
+
+The skill also installs straight from GitHub:
+
+```sh
+npx skills add boldvideo/cli
+```
+
+That gives you the skill but not the pointer, and the agent still needs `boldvideo` installed to do anything with it.
+
+## What the agent gets from the CLI
+
+Setup is the introduction. These are what keep an agent on track once it starts:
+
+- **Help that is the manual.** `boldvideo <command> --help` has the flags and two examples. `boldvideo help --json` returns every command at once.
+- **JSON when piped.** Tables are for you. An agent gets JSON without asking.
+- **Errors that say what to do next.** Each one has a stable `code` and a `hint` naming the next command.
+- **A dry run on every write.** Nothing changes until the agent, or you, has seen the plan.
+
+The full list is in the [CLI reference](/cli).

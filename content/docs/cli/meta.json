@@ -3,5 +3,5 @@
   "title": "CLI",
   "description": "boldvideo, the command line for your library",
   "icon": "Terminal",
-  "pages": ["index"]
+  "pages": ["index", "agents"]
 }
